@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: free5gc-nrf-config
+  namespace: free5gc
+  labels:
+    epc-mode: nrf
+data:
+  nrfcfg.conf: |
+    info:
+      version: 1.0.0
+      description: NRF initial local configuration
+    
+    configuration:
+      MongoDBName: "free5gc"
+      MongoDBUrl: "mongodb://10.244.1.7:27017"
+      DefaultServiceIP: "10.244.1.7"
+      sbi:
+        scheme: http
+        ipv4Addr: 10.244.1.7
+        port: 29510
+      DefaultPlmnId:
+        mcc: "777"
+        mnc: "44"
+      serviceNameList:
+        - nnrf-nfm
+        - nnrf-disc

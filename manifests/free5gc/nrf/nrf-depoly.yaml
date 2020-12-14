@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: free5gc-nrf-svc-pool
+  namespace: free5gc
+  labels:
+    epc-mode: nrf
+spec:
+  selector:
+    app: free5gc-nrf
+  ports:
+  - protocol: TCP
+    targetPort: 29510
+    port: 29510
+  selector:
+    epc-mode: nrf
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: free5gc-nrf-deployment
+  annotations:
+    "cni.projectcalico.org/ipAddrs": "[\"10.244.1.7\"]"
+  namespace: free5gc
+  labels:
+    epc-mode: nrf
+spec:
+  replicas: 1
+  serviceName: "free5gc-nrf-svc-pool"
+  selector:
+    matchLabels:
+      epc-mode: nrf
+  template:
+    metadata:
+      labels:
+        epc-mode: nrf
+    spec:
+      containers:
+        - name: nrf
+          image: monandkey/free5gc-nrf:3.0.4
+          imagePullPolicy: IfNotPresent
+          command: ["./nrf"]
+          volumeMounts:
+          - name: free5gc-nrf-config
+            mountPath: /free5gc/config-map/nrfcfg.conf
+            subPath: "nrfcfg.conf"
+          - name: free5gc-nrf-free5gc-config
+            mountPath: /free5gc/config-map/free5gc.conf
+            subPath: "free5gc.conf"
+      volumes:
+        - name: free5gc-nrf-config
+          configMap:
+            name: free5gc-nrf-config
+        - name: free5gc-nrf-free5gc-config
+          configMap:
+            name: free5gc-nrf-free5gc-config
