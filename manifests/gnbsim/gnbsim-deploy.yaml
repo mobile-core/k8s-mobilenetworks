@@ -1,0 +1,51 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: gnbsim-deployment
+  namespace: gnbsim
+  labels:
+    app: gnbsim
+# spec:
+#   type: NodePort
+#   ports:
+#  - name: s1ap
+#    port: 36412
+#    protocol: SCTP
+#    nodePort: 36412
+#   selector:
+#     app: gnbsim
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: gnbsim-deployment
+  annotations:
+    "cni.projectcalico.org/ipAddrs": "[\"10.244.1.10\"]"
+  namespace: gnbsim
+  labels:
+    app: gnbsim
+spec:
+  replicas: 1
+  serviceName: "gnbsim-svc-pool"
+  selector:
+    matchLabels:
+      app: gnbsim
+  template:
+    metadata: 
+      labels:
+        app: gnbsim
+    spec:
+      containers:
+        - name: gnbsim
+          image: monandkey/gnbsim:0.0.1
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh"]
+          args: ["./example", "-ip", "10.244.1.1"]
+          volumeMounts:
+          - name: gnbsim-config
+            mountPath: /gnbsim/example.json
+            subPath: "example.json"
+      volumes:
+      - name: gnbsim-config
+        configMap:
+          name: gnbsim-config
