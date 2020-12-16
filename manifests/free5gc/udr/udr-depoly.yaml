@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: free5gc-udr-svc-pool
+  namespace: free5gc
+  labels:
+    epc-mode: udr
+spec:
+  selector:
+    app: free5gc-udr
+  ports:
+  - protocol: TCP
+    targetPort: 29510
+    port: 29504
+  selector:
+    epc-mode: udr
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: free5gc-udr-deployment
+  annotations:
+    "cni.projectcalico.org/ipAddrs": "[\"10.244.1.8\"]"
+  namespace: free5gc
+  labels:
+    epc-mode: udr
+spec:
+  replicas: 1
+  serviceName: "free5gc-udr-svc-pool"
+  selector:
+    matchLabels:
+      epc-mode: udr
+  template:
+    metadata:
+      labels:
+        epc-mode: udr
+    spec:
+      containers:
+        - name: udr
+          image: monandkey/free5gc-udr:3.0.4
+          imagePullPolicy: IfNotPresent
+          command: ["./udr"]
+          volumeMounts:
+          - name: free5gc-udr-config
+            mountPath: /free5gc/config-map/udrcfg.conf
+            subPath: "udrcfg.conf"
+          - name: free5gc-udr-free5gc-config
+            mountPath: /free5gc/config-map/free5gc.conf
+            subPath: "free5gc.conf"
+      volumes:
+        - name: free5gc-udr-config
+          configMap:
+            name: free5gc-udr-config
+        - name: free5gc-udr-free5gc-config
+          configMap:
+            name: free5gc-udr-free5gc-config
