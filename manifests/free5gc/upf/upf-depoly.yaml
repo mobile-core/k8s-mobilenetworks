@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: free5gc-upf-svc-pool
+  namespace: free5gc
+  labels:
+    epc-mode: free5gc-upf
+spec:
+  ports:
+  - name: gtpu
+    port: 2152
+    protocol: UDP  
+  - name: sx
+    port: 8805
+    protocol: UDP
+  selector:
+    epc-mode: free5gc-upf
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: free5gc-upf-deployment
+  annotations:
+    "cni.projectcalico.org/ipAddrs": "[\"10.244.1.9\"]"
+  namespace: free5gc
+  labels:
+    epc-mode: free5gc-upf
+spec:
+  replicas: 1
+  serviceName: "free5gc-upf-svc-pool"
+  selector:
+    matchLabels:
+      epc-mode: upf
+  template:
+    metadata:
+      labels:
+        epc-mode: free5gc-upf
+    spec:
+      containers:
+        - name: upf
+          image: monandkey/free5gc-upf:3.0.4
+          imagePullPolicy: IfNotPresent
+          command: ["./upf"]
+          volumeMounts:
+          - name: free5gc-upf-config
+            mountPath: /free5gc/config-map/upfcfg.conf
+            subPath: "upfcfg.conf"
+          - name: free5gc-upf-free5gc-config
+            mountPath: /free5gc/config-map/free5gc.conf
+            subPath: "free5gc.conf"
+      volumes:
+        - name: free5gc-upf-config
+          configMap:
+            name: free5gc-upf-config
+        - name: free5gc-upf-free5gc-config
+          configMap:
+            name: free5gc-upf-free5gc-config
