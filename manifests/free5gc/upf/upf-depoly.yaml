@@ -43,10 +43,10 @@ spec:
           command: ["./upf"]
           volumeMounts:
           - name: free5gc-upf-config
-            mountPath: /free5gc/config-map/upfcfg.conf
+            mountPath: /free5gc/config/upfcfg.conf
             subPath: "upfcfg.conf"
           - name: free5gc-upf-free5gc-config
-            mountPath: /free5gc/config-map/free5gc.conf
+            mountPath: /free5gc/config/free5gc.conf
             subPath: "free5gc.conf"
       volumes:
         - name: free5gc-upf-config

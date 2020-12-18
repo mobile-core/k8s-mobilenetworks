@@ -42,10 +42,10 @@ spec:
           command: ["./n3iwf"]
           volumeMounts:
           - name: free5gc-n3iwf-config
-            mountPath: /free5gc/config-map/n3iwfcfg.conf
+            mountPath: /free5gc/config/n3iwfcfg.conf
             subPath: "n3iwfcfg.conf"
           - name: free5gc-n3iwf-free5gc-config
-            mountPath: /free5gc/config-map/free5gc.conf
+            mountPath: /free5gc/config/free5gc.conf
             subPath: "free5gc.conf"
       volumes:
         - name: free5gc-n3iwf-config

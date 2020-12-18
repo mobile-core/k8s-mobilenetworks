@@ -42,10 +42,10 @@ spec:
           command: ["./smf"]
           volumeMounts:
           - name: free5gc-smf-config
-            mountPath: /free5gc/config-map/smfcfg.conf
+            mountPath: /free5gc/config/smfcfg.conf
             subPath: "smfcfg.conf"
           - name: free5gc-smf-free5gc-config
-            mountPath: /free5gc/config-map/free5gc.conf
+            mountPath: /free5gc/config/free5gc.conf
             subPath: "free5gc.conf"
       volumes:
         - name: free5gc-smf-config

@@ -42,10 +42,10 @@ spec:
           command: ["./nrf"]
           volumeMounts:
           - name: free5gc-nrf-config
-            mountPath: /free5gc/config-map/nrfcfg.conf
+            mountPath: /free5gc/config/nrfcfg.conf
             subPath: "nrfcfg.conf"
           - name: free5gc-nrf-free5gc-config
-            mountPath: /free5gc/config-map/free5gc.conf
+            mountPath: /free5gc/config/free5gc.conf
             subPath: "free5gc.conf"
       volumes:
         - name: free5gc-nrf-config

@@ -45,10 +45,10 @@ spec:
           command: ["./amf"]
           volumeMounts:
           - name: free5gc-amf-config
-            mountPath: /free5gc/config-map/amfcfg.conf
+            mountPath: /free5gc/config/amfcfg.conf
             subPath: "amfcfg.conf"
           - name: free5gc-amf-free5gc-config
-            mountPath: /free5gc/config-map/free5gc.conf
+            mountPath: /free5gc/config/free5gc.conf
             subPath: "free5gc.conf"
       volumes:
         - name: free5gc-amf-config
