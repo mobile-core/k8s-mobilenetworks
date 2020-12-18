@@ -42,10 +42,10 @@ spec:
           command: ["./ausf"]
           volumeMounts:
           - name: free5gc-ausf-config
-            mountPath: /free5gc/config-map/ausfcfg.conf
+            mountPath: /free5gc/config/ausfcfg.conf
             subPath: "ausfcfg.conf"
           - name: free5gc-ausf-free5gc-config
-            mountPath: /free5gc/config-map/free5gc.conf
+            mountPath: /free5gc/config/free5gc.conf
             subPath: "free5gc.conf"
       volumes:
         - name: free5gc-ausf-config

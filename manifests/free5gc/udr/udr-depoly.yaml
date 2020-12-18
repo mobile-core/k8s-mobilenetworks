@@ -42,10 +42,10 @@ spec:
           command: ["./udr"]
           volumeMounts:
           - name: free5gc-udr-config
-            mountPath: /free5gc/config-map/udrcfg.conf
+            mountPath: /free5gc/config/udrcfg.conf
             subPath: "udrcfg.conf"
           - name: free5gc-udr-free5gc-config
-            mountPath: /free5gc/config-map/free5gc.conf
+            mountPath: /free5gc/config/free5gc.conf
             subPath: "free5gc.conf"
       volumes:
         - name: free5gc-udr-config

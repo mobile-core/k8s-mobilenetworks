@@ -38,15 +38,9 @@ spec:
           command: ["./webui"]
           volumeMounts:
           - name: free5gc-webui-config
-            mountPath: /free5gc/config-map/webuicfg.conf
+            mountPath: /free5gc/config/webuicfg.conf
             subPath: "webuicfg.conf"
-          - name: free5gc-webui-free5gc-config
-            mountPath: /free5gc/config-map/free5gc.conf
-            subPath: "free5gc.conf"
       volumes:
         - name: free5gc-webui-config
           configMap:
             name: free5gc-webui-config
-        - name: free5gc-webui-free5gc-config
-          configMap:
-            name: free5gc-webui-free5gc-config

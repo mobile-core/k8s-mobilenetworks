@@ -42,10 +42,10 @@ spec:
           command: ["./pcf"]
           volumeMounts:
           - name: free5gc-pcf-config
-            mountPath: /free5gc/config-map/pcfcfg.conf
+            mountPath: /free5gc/config/pcfcfg.conf
             subPath: "pcfcfg.conf"
           - name: free5gc-pcf-free5gc-config
-            mountPath: /free5gc/config-map/free5gc.conf
+            mountPath: /free5gc/config/free5gc.conf
             subPath: "free5gc.conf"
       volumes:
         - name: free5gc-pcf-config
