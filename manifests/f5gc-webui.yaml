@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: f5gc-webui-sa
+  namespace: f5gc
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: f5gc-webui-rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: f5gc-webui-sa
+  namespace: f5gc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: f5gc-webui-config
+  namespace: f5gc
+data:
+  webuicfg.conf: |
+    info:
+      version: 1.0.0
+      description: WebUI initial local configuration
+
+    configuration:
+      mongodb:
+        name: free5gc
+        url: mongodb://f5gc-mongodb:27017
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: f5gc-webui
+  name: f5gc-webui
+  namespace: f5gc
+spec:
+  ports:
+  - name: f5gc-webui
+    port: 5000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: f5gc-webui
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: f5gc-webui
+  namespace: f5gc
+  labels:
+    app: f5gc-webui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: f5gc-webui
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: f5gc-webui
+    spec:
+      containers:
+      - name: f5gc-webui
+        image: monandkey/free5gc-webui:3.0.4
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+          name: f5gc-webui
+          protocol: TCP
+        securityContext:
+          privileged: false
+        volumeMounts:
+        - mountPath: /free5gc/config
+          name: f5gc-webui-config
+      - name: tcpdump
+        image: corfr/tcpdump
+        command:
+        - /bin/sleep
+        - infinity
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsGroup: 0
+        runAsUser: 0
+      serviceAccountName: f5gc-webui-sa
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          name: f5gc-webui-config
+        name: f5gc-webui-config

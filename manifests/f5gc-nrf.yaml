@@ -1,0 +1,262 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: f5gc-nrf-sa
+  namespace: f5gc
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: f5gc-nrf-rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: f5gc-nrf-sa
+  namespace: f5gc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: f5gc-nrf-config
+  namespace: f5gc
+data:
+  nrfcfg.conf: |
+    info:
+      version: 1.0.0
+      description: NRF initial local configuration
+
+    configuration:
+      MongoDBName: "free5gc"
+      MongoDBUrl: "mongodb://f5gc-mongodb:27017"
+      DefaultServiceIP: "f5gc-nrf"
+      sbi:
+        scheme: http
+        ipv4Addr: 0.0.0.0
+        port: 29510
+      DefaultPlmnId:
+        mcc: "208"
+        mnc: "93"
+      serviceNameList:
+        - nnrf-nfm
+        - nnrf-disc
+  free5GC.conf: |
+    db_uri: mongodb://f5gc-mongodb:27017/free5GC
+    #all logging levels
+    #panic
+    #fatal
+    #error
+    #warn
+    #info
+    #debug
+    #trace
+    logger:
+    # network function
+      AMF:
+        debugLevel: info
+        ReportCaller: true
+      SMF:
+        debugLevel: info
+        ReportCaller: true
+      UDR:
+        debugLevel: info
+        ReportCaller: true
+      UDM:
+        debugLevel: info
+        ReportCaller: true
+      NRF:
+        debugLevel: info
+        ReportCaller: true
+      PCF:
+        debugLevel: info
+        ReportCaller: true
+      AUSF:
+        debugLevel: info
+        ReportCaller: true
+      N3IWF:
+        debugLevel: info
+        ReportCaller: true
+    # library
+      NAS:
+        debugLevel: info
+        ReportCaller: true
+      FSM:
+        debugLevel: info
+        ReportCaller: true
+      NGAP:
+        debugLevel: info
+        ReportCaller: true
+      NamfComm:
+        debugLevel: info
+        ReportCaller: true
+      NamfEventExposure:
+        debugLevel: info
+        ReportCaller: true
+      NsmfPDUSession:
+        debugLevel: info
+        ReportCaller: true
+      NudrDataRepository:
+        debugLevel: info
+        ReportCaller: true
+      OpenApi:
+        debugLevel: debug
+        ReportCaller: true
+      Aper:
+        debugLevel: info
+        ReportCaller: true
+      CommonConsumerTest:
+        debugLevel: info
+        ReportCaller: true
+    # webui
+      WEBUI:
+        debugLevel: info
+        ReportCaller: true
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: f5gc-nrf-tls-secret
+  namespace: f5gc
+type: Opaque
+data:
+  nrf.key: |
+    LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBbnJiZ1
+    duQkYvbkNLeUhIUVdrVVdDOG9MSkJGQUoxdlVDZWtGRzBMUGNPU2p5REQ5ClNmek9MT0RH
+    S2kyVk5ic1BvSGJaYnhkTHlxRFl4QnU0T0hFQWFlV1d1TlVYNzZFNnVUYjhsMEJxcVJEek
+    FEYUkKTkEzZFBkcVhRaDY0T25CWWRva21QWkVZdUg4Y0RTNVlvcmFaSGF2VkU2eGF3Z3dC
+    UFNER0ZXcnZMUTZ0Ynd0dApkZ09DTjdXdlVwUlZWQzZPNUo2SGFTbTRkaVd0b3JjVHJKbD
+    ZEZ1NUNzRpVWhUczhPOGNPOG5XRFp5QmRRQTQ0ClhIY004ZStaSllsSWtjWFFoT2QwbTly
+    dlhSUFREYkdSOFBlZnc4MkZMM1A1cXI4R2wxbE9iaVcyTVRDQXBwM2UKZ2dPYXhRSlFRek
+    d1OHRpY3drUisrRENBem94NitpWUlXY0Y3TVFJREFRQUJBb0lCQUFMdUtYSkNCR2pRTngv
+    QQpTaktBZUFtN3J6ejVQSS85ZUFxK3pLTldObkpGSm1qNXpwTmhJWVZlbVFvS1VXanVqVG
+    xQT0hCK281MllIcWh3ClFwUjRNYVBDNDJlQ043RHE3eVNnU1VXWm9ONkNPNXBUWjJ4ZW5T
+    a1pNaFc4YjNaVXdLMWZsdDhvSUthM1loTTAKT2RxM09GaDk1YTg1VFd1cndSSVoyczVtYl
+    FnTjUrQVVJNkQvQW1teWJKdTJxWW82U3dxN1QxcitZZFBqQS9haApMdmVTNmp1eWVIai8r
+    SVE1czBIYlNrdzFjaEdSL2UyYk0vTDlTRDVnb3ZZNEV2WHlaSGZXOSsrRENmUFpWNEJzCj
+    l5Zm1zV1VoNWlDYkpqbyswYzRFbTFoWmxTN1NvaWxUVTV5OE5QNE9UdU1CV0srb0xPYytE
+    cDlpb1ZNV1gvSjQKUHovWkNFa0NnWUVBelJhRUl6a2hqRDNuWlJJT1o1RUxDT2VLYUxoOT
+    ZIUjBtcWNsbWNUNjNwZURGbkdMOEdkaApjZTVyNjRXODRhQnpWbWl1Mno4d05MUWw4Zjh6
+    VnVPeUgvQnJiK1I2NkxYT25haVMwc0I5OTlZd0oyREZSaVByCkZnNkFOSmlWQ1NKajM2VE
+    lQTmZENW0wNVRVMkN4QjhUMW5MRS9xU3FiczUzMXc5WnFtUWhDV01DZ1lFQXhoMUoKSm5R
+    dDAvbWc4dzVTNHY3V1BrTFNnOEdtKy9UUnNBcjdXTDFVbVRlN2JLMjFPNDgwMy9uaHFoYm
+    d4WWN4SnhYQwpESzFPbjV6TzN0TENCTGVGMlpOVmoyZWVWMGtQTHhqYklnVll6TWRDSCt3
+    SU93OUgzcFhnMmlrbWtRdHorLzIyCkh1YkwwbFNNVFpQamM3Wmp3Y2QzZlh0MC9waDVqVS
+    9qUnFxcjExc0NnWUVBZzF4TnJLWDJSL2FLbE9FNDJyczcKWHl1M0twWXBCMUE0TTZxbDJk
+    VWlmcHA3TzAvbE8wbHNUK1pQdDU2RXVkdmtwRThPMkoyamljNXRrNUJMV1Bjawo2M0k1em
+    9TQStUY2lMVGVCTzM1UjhRRisvR251VVp2R0F1MnN6b09BeWtYOXhJeXVPTkpXeHV2a3pR
+    KzlsMUwwCmlPSWdMWjVaRC9vdEpsSE5zK2JJaGxNQ2dZQjMvdDhDc3BYYmNiU2g0MGdqQT
+    NXaXluaVZvMkxQOHk1YXNad2gKMkxONEJrQzRoOUpnMjlHTDQ5OWlWVzhaVlZSWk54Mk03
+    aC9VSDNkUmtWaEE0U1BxY0FuL3pTUWovRFY5TWxIdwpIa3IxNWE3UWhQZExSbXNpajZkY2
+    5GWW12a2duRmpvTUo0REd5YjBkYy9qdGFraXI0M1FsaGZTTURMQjYvaXRMCjd5NGNSd0tC
+    Z0RsOUVydE5Ma200OXlUMFlGd3RoMnlmeTdJNGZzSld6NE1HeTVEZ3M3VkdiMWc0UDd2V3
+    lpMU4KSVNUdmZTVjhvSmNzVWdQd3RGWVovV1Z3WWZUemhvMmlHcnVUaTJaTHFHbG1CdUkw
+    VnRpV2p4bVVlSzJGUVh0WApwdkxDVFRDR29hN1c2M2E3WVhaeS9Db2VReld2WkhBZEZiVU
+    9LV28ybFA0R3dQT3oxcWJjCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+  nrf.pem: |
+    LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURvekNDQW91Z0F3SUJBZ0lVWDdYbk
+    1ZdGZPeUtyUlpiQ250WUR6a3ZVWXpFd0RRWUpLb1pJaHZjTkFRRUwKQlFBd1lURUxNQWtH
+    QTFVRUJoTUNZV0l4Q3pBSkJnTlZCQWdNQW1GaU1Rc3dDUVlEVlFRSERBSmhZakVMTUFrRw
+    pBMVVFQ2d3Q1lXSXhDekFKQmdOVkJBc01BbUZpTVFzd0NRWURWUVFEREFKaFlqRVJNQThH
+    Q1NxR1NJYjNEUUVKCkFSWUNZV0l3SGhjTk1Ua3dOekU1TURnMU1EQTRXaGNOTWprd056RT
+    JNRGcxTURBNFdqQmhNUXN3Q1FZRFZRUUcKRXdKaFlqRUxNQWtHQTFVRUNBd0NZV0l4Q3pB
+    SkJnTlZCQWNNQW1GaU1Rc3dDUVlEVlFRS0RBSmhZakVMTUFrRwpBMVVFQ3d3Q1lXSXhDek
+    FKQmdOVkJBTU1BbUZpTVJFd0R3WUpLb1pJaHZjTkFRa0JGZ0poWWpDQ0FTSXdEUVlKCktv
+    WklodmNOQVFFQkJRQURnZ0VQQURDQ0FRb0NnZ0VCQUo2MjRGcHdSZjV3aXNoeDBGcEZGZ3
+    ZLQ3lRUlFDZGIKMUFucEJSdEN6M0Rrbzhndy9Vbjh6aXpneGlvdGxUVzdENkIyMlc4WFM4
+    cWcyTVFidURoeEFHbmxscmpWRisraApPcmsyL0pkQWFxa1E4d0EyaURRTjNUM2FsMElldU
+    Rwd1dIYUpKajJSR0xoL0hBMHVXS0sybVIycjFST3NXc0lNCkFUMGd4aFZxN3kwT3JXOExi
+    WFlEZ2plMXIxS1VWVlF1anVTZWgya3B1SFlscmFLM0U2eVplZzRFaysrSWxJVTcKUER2SE
+    R2SjFnMmNnWFVBT09GeDNEUEh2bVNXSlNKSEYwSVRuZEp2YTcxMFQwdzJ4a2ZEM244UE5o
+    Uzl6K2FxLwpCcGRaVG00bHRqRXdnS2FkM29JRG1zVUNVRU14cnZMWW5NSkVmdmd3Z002TW
+    V2b21DRm5CZXpFQ0F3RUFBYU5UCk1GRXdIUVlEVlIwT0JCWUVGSS9mVjRaUEw0V3FYd01t
+    RzdUUU5JR3JmM09FTUI4R0ExVWRJd1FZTUJhQUZJL2YKVjRaUEw0V3FYd01tRzdUUU5JR3
+    JmM09FTUE4R0ExVWRFd0VCL3dRRk1BTUJBZjh3RFFZSktvWklodmNOQVFFTApCUUFEZ2dF
+    QkFHcllmK2JYY2NEN29melJLemNkaDBmbUc0YWJCVlg4d1Q3WUM0cXRZQ1Fld2pCQitjam
+    h4WWp4Cnd6d2ZUM1lLZW92czR2ekwydVJLdkdzU0xLVVBDZ0ZtMWNpcEl1VGVRQ0Z5RWh1
+    bnR0QWJ1V0lTUCtRR2ZpTTgKUXIvQmM1MkRZUGlKTm54eExVTVdLZ3R0bG5wbzJuYVlOUm
+    5yekR1Y0hZdUNtQ0M1NytNWmhhWU9EKzBSbC9yUApIaEJ4d3N0K1h0bnNPWVROMFRLb0FF
+    YkRZZWVDb3BvTEVFdldaRFFzY28zOXFGekhXYjVrK0tQRGdnUmNmUjZBClFnTk5lbE5QTj
+    F5VkUxamg4MEllUStoUThSSXpnblFnalQ0RS9aK0JaL3F0VkVCdlJ0TGZyRlVzd3BEUEgr
+    NmMKN242bjNlTklGNTNieHh0Ly9LTmdKV0J6TnV4dXA5QT0KLS0tLS1FTkQgQ0VSVElGSU
+    NBVEUtLS0tLQo=
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: f5gc-nrf
+  name: f5gc-nrf
+  namespace: f5gc
+spec:
+  ports:
+  - name: f5gc-nrf
+    port: 29510
+    protocol: TCP
+    targetPort: 29510
+  selector:
+    app: f5gc-nrf
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: f5gc-nrf
+  namespace: f5gc
+  labels:
+    app: f5gc-nrf
+  annotations:
+    free5gc.org/nsi-ids: '[
+      { "id": "4e6db941-47d6-4fce-9c71-f7eb35a75d03" },
+    ]'
+    free5gc.org/nssi-id: 27394d25-dbf5-428e-8fc3-f5b2add67115
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: f5gc-nrf
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: f5gc-nrf
+    spec:
+      containers:
+      - name: f5gc-nrf
+        image: monandkey/free5gc-nrf:3.0.4
+        imagePullPolicy: IfNotPresent
+        command: [./nrf]
+        ports:
+        - containerPort: 29510
+          name: f5gc-nrf
+          protocol: TCP
+        securityContext:
+          privileged: false
+        volumeMounts:
+        - mountPath: /free5gc/config
+          name: f5gc-nrf-config
+        - mountPath: /free5gc/support/TLS
+          name: f5gc-nrf-cert
+      - name: tcpdump
+        image: corfr/tcpdump
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/sleep
+        - infinity
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsGroup: 0
+        runAsUser: 0
+      serviceAccountName: f5gc-nrf-sa
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: f5gc-nrf-cert
+        secret:
+          secretName: f5gc-nrf-tls-secret
+      - configMap:
+          name: f5gc-nrf-config
+        name: f5gc-nrf-config
