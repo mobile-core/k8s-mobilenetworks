@@ -1,0 +1,260 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: f5gc-ausf-sa
+  namespace: f5gc
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: f5gc-ausf-rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: f5gc-ausf-sa
+  namespace: f5gc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: f5gc-ausf-config
+  namespace: f5gc
+data:
+  ausfcfg.conf: |
+    info:
+      version: 1.0.0
+      description: AUSF initial local configuration
+    
+    configuration:
+      sbi:
+        scheme: http
+        registerIPv4: f5gc-ausf
+        bindingIPv4: 0.0.0.0
+        port: 29509
+      serviceNameList:
+        - nausf-auth
+      nrfUri: http://f5gc-nrf:29510
+      plmnSupportList:
+        - mcc: 208
+          mnc: 93
+        - mcc: 123
+          mnc: 45
+      groupId: ausfGroup001
+  free5GC.conf: |
+    db_uri: mongodb://f5gc-mongodb:27017/free5GC
+    #all logging levels
+    #panic
+    #fatal
+    #error
+    #warn
+    #info
+    #debug
+    #trace
+    logger:
+    # network function
+      AMF:
+        debugLevel: info
+        ReportCaller: true
+      SMF:
+        debugLevel: info
+        ReportCaller: true
+      UDR:
+        debugLevel: info
+        ReportCaller: true
+      UDM:
+        debugLevel: info
+        ReportCaller: true
+      NRF:
+        debugLevel: info
+        ReportCaller: true
+      PCF:
+        debugLevel: info
+        ReportCaller: true
+      AUSF:
+        debugLevel: info
+        ReportCaller: true
+      N3IWF:
+        debugLevel: info
+        ReportCaller: true
+    # library
+      NAS:
+        debugLevel: info
+        ReportCaller: true
+      FSM:
+        debugLevel: info
+        ReportCaller: true
+      NGAP:
+        debugLevel: info
+        ReportCaller: true
+      NamfComm:
+        debugLevel: info
+        ReportCaller: true
+      NamfEventExposure:
+        debugLevel: info
+        ReportCaller: true
+      NsmfPDUSession:
+        debugLevel: info
+        ReportCaller: true
+      NudrDataRepository:
+        debugLevel: info
+        ReportCaller: true
+      OpenApi:
+        debugLevel: debug
+        ReportCaller: true
+      Aper:
+        debugLevel: info
+        ReportCaller: true
+      CommonConsumerTest:
+        debugLevel: info
+        ReportCaller: true
+    # webui
+      WEBUI:
+        debugLevel: info
+        ReportCaller: true
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: f5gc-ausf-tls-secret
+  namespace: f5gc
+type: Opaque
+data:
+  ausf.key: |
+    LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBNXRmS2
+    NrMVpDQmEvdDZNS0xmVTlhVnBIVUhUclROTFUyVWI2SGZwZmxjQ2hhRkdjCldrVzhIY0lx
+    Q2pOWTlZempFQkVvaGxwNVhmMnVzd2F5My8wUENlMmtJNEtBNDRRa0ZxMEovK2hiM3pnYS
+    tHWDIKdlVpR0lSWlVXMDlaVUh3N1hqSklDZDhIZmxDM2pVbmIyRjBPbjdPeUtkQXFlVmZN
+    eGZaZnZXNlpzOTVHdDBiMwpsNFc3MUtmVnIyV0gvSnAvdzE0TnRTS3NYN0hXRlZPWHc5aW
+    5HZFlxamRsbVQ0ZklLN2RIdzFLRmpSK2M1bmxSCnNNVjhib3M3bnRKZGhFbXdOQndCbVJw
+    YWt5MWZDZGNUS1NWME5ZZ0RCRWpCNzczQi9kTEJWSTYxU0VZcFlOUWgKcUg1c3I3QnF4dF
+    ZPUGZVY0NUbU9rUXZuTEdhaVlIYmFJS0M4bFFJREFRQUJBb0lCQUQ1Zm1FZ0NOa2hGUFZB
+    MQpNWTd4Y01LQ3JqcERIVUVJeHBKZTV6NHFaS0ZtQnpiVXRsWjkrVEpoUUZLNVJSUTBHVF
+    pDTEowQTNVSlVSVndDCk4xcm1XYVhwSEN5c0duOWZPUkVYZUZnNVJIbXdBem1TODNSNW9D
+    UllrRHFMMmlveEp5bHdsSjUyTU9Ra2t6UU4KL09VZFg5SXZEN2pVa21Wdkg5bHRsTGp1cF
+    lFL3pvSVNUQVdpVWFWdkRPcmw1ZVZwQ3BBa2J6N2lKR0xyUDdkRwpsRitxbkZvMTNleC9E
+    bnNWU2tGVXh3c2l6cFo3SWdnZkF3N2w3NEdia2ZpTTdUOTVrd0lGZFA4S0Z1T1VhM3VuCm
+    JmVjFVQ0dFMXBLbVdoQmxPbkI5WkZwWEJqemJQVElCME1RRXJVUU1YL3FEOVZSdXlHZE4v
+    TGpWWHRVUGhsWlQKcXQzUnJCRUNnWUVBL21vRUJIZGQ0NEhHUE9NbkwzWlpWdTZNNW5EcG
+    9kWWZYR3dod29uWmRiMWRTU0h5Ukl0bApQV2kvTm1PSjJMRzR0RnJzUE5KZHhKeTNtVCtY
+    K2F3Z3BITmFUN0dyWmxFRFJTUy8xS0RHV1JNZ3lyN1AwRXl4Cm9yNk9uVkk2aFRNU0FzSm
+    Ruc09PYTdLZVVPY2FjbTA1RXVYUmFXcGRuYnpFTHNhMXQzZGJoV2NDZ1lFQTZFZ3AKUG9o
+    eEVIb3hpWjUyTWZhK1RDV0FCKzhqcDk2R2Q0cnEvL3h0QVliRStwbVNiaC9vM29QV0FKc0
+    huN1l4d2dzTApZekpiQk9qYTdUTEdhOExJQ01CMTlLL2YrbDB0L1RZdUVBYm9UbkdjdFZ2
+    SHdIRzdMbDk2YlpHaUVvanpzN0xqCjRUM0w5WWRBNGZpbmZTV2ZkUU5rMlQzSUJsSlhEY3
+    hod3UralZLTUNnWUJNN2UvRERma2s5elBqYTJpSThJZDUKUXU3Mks0UnAvRjVGU3lrMk13
+    cS9rSUFwd2dzSThRR3UvUUo4eHNLQzlOSitMdFFxWEE0Z2lxYjF2d1lNYUNFQwp1U0xBNE
+    YrTXM4aUNXdWRxdXliZS9tcTNBOVhCRGIvVkR6ditsRU8velQ2UCtRZm9Id2ZzeHZrYVM1
+    ZHlyRlpLCndaVitBN3pGR3JSVDFLQlVGdEprMXdLQmdRQ2JjZjgzKy9NK1JhZjFJdmlTUX
+    ovaWtZMzJ3VkNwUEwvY0xEbE0KQ2srZ24rSWVtcnRsdXpFS0NFd2twNXNZaE1NVHluUmFk
+    QTU1WUtOeDdYTGdGci9ySzNGRXlKWXBaRVlzbUIrSApWamdNbHZkNlh1dDBuQ2ZaeHNlVm
+    44cElnU0lsOWVlT2l0NTlkNEF5T1VkTTl1cVpVaVloUTdraWtlUDBOZnlPCmlmUlI1UUtC
+    Z0Q4M0RIUVdnQTNDNGY5UTNvaWY5Z3J2Q1AxcitzdXFvblRtcEI0aHBXMDFJbEMwWWx1Q0
+    VsMTIKNlU5aHI2MDQ3QkIydGwydUdPREk4SUJZMndrb0NLVmpDZWJ1RWVWdUlhNzZDeGhH
+    MElFUmkzZ21CbDRrcmJEaQpuNXoxSXNsZmMrVXFTSzNJWmJIUUI3YS9pR1NVWDBtaEFhaE
+    xIWCtyeklYbDRvVXlrU0N6Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+  ausf.pem: |
+    LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURZRENDQWtpZ0F3SUJBZ0lKQUtoWF
+    JCRjBQZFljTUEwR0NTcUdTSWIzRFFFQkN3VUFNRVV4Q3pBSkJnTlYKQkFZVEFrRlZNUk13
+    RVFZRFZRUUlEQXBUYjIxbExWTjBZWFJsTVNFd0h3WURWUVFLREJoSmJuUmxjbTVsZENCWA
+    phV1JuYVhSeklGQjBlU0JNZEdRd0hoY05NVGt3TnpJek1EWTFNekl3V2hjTk1qa3dOekl3
+    TURZMU16SXdXakJGCk1Rc3dDUVlEVlFRR0V3SkJWVEVUTUJFR0ExVUVDQXdLVTI5dFpTMV
+    RkR0YwWlRFaE1COEdBMVVFQ2d3WVNXNTAKWlhKdVpYUWdWMmxrWjJsMGN5QlFkSGtnVEhS
+    a01JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQgpDZ0tDQVFFQTV0Zktjaz
+    FaQ0JhL3Q2TUtMZlU5YVZwSFVIVHJUTkxVMlViNkhmcGZsY0NoYUZHY1drVzhIY0lxCkNq
+    Tlk5WXpqRUJFb2hscDVYZjJ1c3dheTMvMFBDZTJrSTRLQTQ0UWtGcTBKLytoYjN6Z2ErR1
+    gydlVpR0lSWlUKVzA5WlVIdzdYakpJQ2Q4SGZsQzNqVW5iMkYwT243T3lLZEFxZVZmTXhm
+    WmZ2VzZaczk1R3QwYjNsNFc3MUtmVgpyMldIL0pwL3cxNE50U0tzWDdIV0ZWT1h3OWluR2
+    RZcWpkbG1UNGZJSzdkSHcxS0ZqUitjNW5sUnNNVjhib3M3Cm50SmRoRW13TkJ3Qm1ScGFr
+    eTFmQ2RjVEtTVjBOWWdEQkVqQjc3M0IvZExCVkk2MVNFWXBZTlFocUg1c3I3QnEKeHRWT1
+    BmVWNDVG1Pa1F2bkxHYWlZSGJhSUtDOGxRSURBUUFCbzFNd1VUQWRCZ05WSFE0RUZnUVVZ
+    RDBuNWFpQwp5MmNDSXZPZjIrZDQvalg3VG9rd0h3WURWUjBqQkJnd0ZvQVVZRDBuNWFpQ3
+    kyY0NJdk9mMitkNC9qWDdUb2t3CkR3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lH
+    OXcwQkFRc0ZBQU9DQVFFQXRXazNjUkU0VUhtKzV6SEcKYU9hcnJaU3NxOWthUkJ5Mmoxd1
+    BxOTRDWGFOS2RLZFU1djk5Rmk3WENrZFZvdzAvN2grUlc0YlJSeFVPYytISgpTS1Q5VGVN
+    VHprWTFDNG5VRFhCaU44aE5XUStFUEZsaXk5MzhPRVlSSWdlVjd1Nm1NSGdWMnI3Nmg3SX
+    RURS85Cm5vKzF2VDRMelZOU00zbnNFeDlXNVRnT2lYcXQvZDArUHlUeDQ4YmVmd1BOMW1L
+    c21PaTdpcGFEOEpsYWtBbnoKTm45YU5KTWRxL1ZKYUxoUCs0Ri8xVUNKQU5RVnpabFNuNE
+    xGS0psZnZSSUJYOHdwWFlvejNKWUFhNndZVkY5MApKVm9CaGhyaFFwYnhnUVNEc2tYVDVw
+    VDUvWVZTblBsUnVTQk1hbUdzWFdjWGVNUENDc0NKaUxDNzY1djB0NXZUCmhlSXRCQT09Ci
+    0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: f5gc-ausf
+  name: f5gc-ausf
+  namespace: f5gc
+spec:
+  ports:
+  - name: f5gc-ausf
+    port: 29509
+    protocol: TCP
+    targetPort: 29509
+  selector:
+    app: f5gc-ausf
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: f5gc-ausf
+  namespace: f5gc
+  labels:
+    app: f5gc-ausf
+  annotations:
+    free5gc.org/nsi-ids: '[ 
+      { "id": "4e6db941-47d6-4fce-9c71-f7eb35a75d03" },
+    ]'
+    free5gc.org/nssi-id: 27394d25-dbf5-428e-8fc3-f5b2add67115
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: f5gc-ausf
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: f5gc-ausf
+    spec:
+      containers:
+      - name: f5gc-ausf
+        image: monandkey/free5gc-ausf:3.0.4
+        imagePullPolicy: IfNotPresent
+        command: [./ausf]
+        ports:
+        - containerPort: 29509
+          name: f5gc-ausf
+          protocol: TCP
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /free5gc/config
+          name: f5gc-ausf-config
+        - mountPath: /free5gc/support/TLS
+          name: f5gc-ausf-cert
+      - name: tcpdump
+        image: corfr/tcpdump
+        command:
+        - /bin/sleep
+        - infinity
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsGroup: 0
+        runAsUser: 0
+      serviceAccountName: f5gc-ausf-sa
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: f5gc-ausf-cert
+        secret:
+          secretName: f5gc-ausf-tls-secret
+      - configMap:
+          name: f5gc-ausf-config
+        name: f5gc-ausf-config

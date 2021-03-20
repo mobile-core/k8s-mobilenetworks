@@ -1,0 +1,335 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: f5gc-amf-sa
+  namespace: f5gc
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: f5gc-amf-rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: f5gc-amf-sa
+  namespace: f5gc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: f5gc-amf-config
+  namespace: f5gc
+data:
+  amfcfg.conf: |
+    info:
+      version: 1.0.0
+      description: AMF initial local configuration
+
+    configuration:
+      amfName: AMF
+      ngapIpList:
+        - 0.0.0.0
+      sbi:
+        scheme: http
+        registerIPv4: f5gc-amf
+        bindingIPv4: 0.0.0.0
+        port: 29518
+      serviceNameList:
+        - namf-comm
+        - namf-evts
+        - namf-mt
+        - namf-loc
+        - namf-oam
+      servedGuamiList:
+        - plmnId:
+            mcc: 208
+            mnc: 93
+          amfId: cafe00
+      supportTaiList:
+        - plmnId:
+            mcc: 208
+            mnc: 93
+          tac: 1
+      plmnSupportList:
+        - plmnId:
+            mcc: 208
+            mnc: 93
+          snssaiList:
+            - sst: 1
+              sd: 010203
+            - sst: 1
+              sd: 112233
+      supportDnnList:
+        - internet
+      nrfUri: http://f5gc-nrf:29510
+      security:
+        integrityOrder:
+          - NIA2
+          - NIA0
+        cipheringOrder:
+          - NEA2
+          - NEA0
+      networkName:
+        full: free5GC
+        short: free
+      t3502: 720
+      t3512: 3600
+      non3gppDeregistrationTimer: 1000
+  free5GC.conf: |
+    db_uri: mongodb://f5gc-mongodb:27017/free5GC
+    #all logging levels
+    #panic
+    #fatal
+    #error
+    #warn
+    #info
+    #debug
+    #trace
+    logger:
+    # network function
+      AMF:
+        debugLevel: trace
+        ReportCaller: true
+      SMF:
+        debugLevel: info
+        ReportCaller: true
+      UDR:
+        debugLevel: info
+        ReportCaller: true
+      UDM:
+        debugLevel: info
+        ReportCaller: true
+      NRF:
+        debugLevel: info
+        ReportCaller: true
+      PCF:
+        debugLevel: info
+        ReportCaller: true
+      AUSF:
+        debugLevel: info
+        ReportCaller: true
+      N3IWF:
+        debugLevel: info
+        ReportCaller: true
+    # library
+      NAS:
+        debugLevel: info
+        ReportCaller: true
+      FSM:
+        debugLevel: info
+        ReportCaller: true
+      NGAP:
+        debugLevel: trace
+        ReportCaller: true
+      NamfComm:
+        debugLevel: debug
+        ReportCaller: true
+      NamfEventExposure:
+        debugLevel: info
+        ReportCaller: true
+      NsmfPDUSession:
+        debugLevel: info
+        ReportCaller: true
+      NudrDataRepository:
+        debugLevel: info
+        ReportCaller: true
+      OpenApi:
+        debugLevel: debug
+        ReportCaller: true
+      Aper:
+        debugLevel: info
+        ReportCaller: true
+      CommonConsumerTest:
+        debugLevel: info
+        ReportCaller: true
+    # webui
+      WEBUI:
+        debugLevel: info
+        ReportCaller: true
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: f5gc-amf-tls-secret
+  namespace: f5gc
+type: Opaque
+data:
+  amf.key: |
+    LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb2dJQkFBS0NBUUVBcVhwdl
+    RjMVdwVXF3Nk5JNitWY2pCRGY0dEUyWmcvZWJaeDdEcjN0aDlQN0dBSTY2CmtWeW9vVm04
+    OWFzdlpJYWRnKzBrUnp1SFI4Y0FvaGFCT3JIR2RRdHRkb3gyVHoxNG5OcU90SU1UZzQyWW
+    hPeEYKdVM5TUxMNmJSK1R6TGk2T0VsVCtTWk1GQnNHR2ROVlVSM1Uwc2YwVmtibHpnaXBi
+    aUtuSnFEUW9lSC80UkhlYwpscndJQnFzcmJLZ1ZTc05oRVBRV0NhRXJGSG5abmZSNDgvVU
+    hWWSs5bEZsUXNCY2dYMUlNOWxSL0VndWRCWldZCkJJeDB3VFl5K1RxNGtSNytHdEp4bGZt
+    RVdUM2JBQ0kydVkxRDl1MXpwdmpmM2N4d3drMEs0b1Q3V0xJcS9vblIKZUlUeVRib2NIdE
+    1oR3F2TTZpcnloODFQbGFGaG1RZUJMTEU0V1FJREFRQUJBb0lCQUM5UmllWVZJTTRCcnFj
+    eQptMWltcFpZMThuQ1ZBZm5BbGxrU1U5eVkvRjZsQzY5NEtrc1ByZDF1NnIxRTBIU215Uy
+    9lZERTWFFFd2dHZU1uCm1XbEQzWDhzYzZHWDBpaUpwelZVS0dmcCtQYlAvL2VNNkdLdCsv
+    eTZNeXk5bGRBZEczbXUxVmpCZmJQSE1MMUsKR3IvZ3o1ZXFhKzFGOUNReG8yRGkxdlRwcX
+    lzSlMyVUtpVzBWQ0lZUE0rZ1RVV2oxbWdpR3Q1NnlrL3A2WUF5UworNkRabTE5ayt6cjFN
+    K2Q2aUtQeVNmWU9wQzJVaHlyYldXVU5sTUFFUmptL2NQa0NSb0hyck05WnBIdlNMeG1MCk
+    FCU0c2T1g0aUROUWV4RGVJZHJSV1BIZUFySjljQi91Y0hoa0F2RlhMV3JZWllDd2ZRaWp6
+    L1l4YTZaelBaS1cKZ0p4V2NhRUNnWUVBMlBLL1F1RDdGU3hnVW9rRGJxV25zRkw4TzJnSH
+    VPQ2kwbHBzMjY4bFJiclVNNktoRmpnNQpLQ2pVemF5dkZxQzNzMGFNWFhaMS9Wb044SmdD
+    aVdJTWJWbW1CYUFZRU9lNGFqbHFPTWhMRDJrS3FhWjN5STJYClVKejF6R3RWNWxadUJRNk
+    ZPR05XVEVUbFVCSUZ0Zytnb0VIN1pmN1ZDOHovaTFJVnR5WWNDQ1VDZ1lFQXgvdzEKNVVI
+    dTN3NEJaYVVQWU9KSjlSa3RKL3ErcHRJRFFsL3h0MW1BRnpaL3UvbTNXVkpzRG5PQTFJR3
+    ZIVG5qSEVMSwowNzhZNENSb1k0bUVYZlpQSnNsN1BBclZEcjhodXdyTHF3TkR3Slo3N1lN
+    amtwUmhoWWxVSzEyS0xsTW9jQzQyClY4cCtZRmVuRUxBRTlMa3k0allSQ29HZWp5cTR5QU
+    pWWXEzc2J5VUNnWUI4NDJrRTkveXlXS1J1ZnQ5Ujc5elQKblVJRWRNT1ZRd09ZTW1QZUp6
+    bytwT21KZkFKZGh5b29HekU5NFQyOXVmRm1LNk9jSGhpWUt5SkJNVkNzZzV3Qgp5d3pPeW
+    pWd2JlUjBpZTdERjFKV1liSzRyTkxoeWRpa21HYkxNYkwyY1NUT2xtaE1hS3NDSnRzWE4v
+    aS9zTWxYCjJBUC8yQzRPcUFrbnk2NGlpN2F4WFFLQmdBYk9DQzl5M09QdUlCSUxXY2ljS3
+    BRU2RUemxCVk83MWF5T2d6VVAKOEpIWm91TU1qamFWM1dOb2ZydThaZThDcHoydzhDSGdZ
+    TUpQdXRXWU9rN1FNTVZMR2N4ak9maTBmRHRYRkxNTworMkUwUGFkSlRRNlJ5ZmUzUW92dk
+    5PSjZwZWViU3ZJVnk5TVBhSG5pNDJoSVhQamhpaGJuYmpQRTZtQ3o0NS9sCjl5T1pBb0dB
+    TnJjTDNxTk1ENlBESXZrbnIzWTdyaE1TdFpzRWRrRkVHQlRVU1A0cFpid0huTklLWDVpUW
+    x1dzcKQWF3eDJaaWRZaDg5WDhMRmtQc3VwNU9HVHJBVVAvVFBDZ1hBK2FabE8weWpWTUNG
+    bEE3RCtNVGlOT2VTT2UvLwowZEFWaHVSQUZTNTEwdjBOZlNQbExuU2ZBNjlqRWNwdWV3Zj
+    k0SVRNUmo2TUlpWUxweGM9Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+  amf.pem: |
+    LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURVekNDQWp1Z0F3SUJBZ0lKQU5DNG
+    VzUEMxMDJVTUEwR0NTcUdTSWIzRFFFQkN3VUFNRUF4Q3pBSkJnTlYKQkFZVEFsUlhNUkF3
+    RGdZRFZRUUlEQWRJYzJsdVkyaDFNUTB3Q3dZRFZRUUhEQVJqYVhSNU1SQXdEZ1lEVlFRSw
+    pEQWRtY21WbE5VZERNQjRYRFRFNU1EY3hPREEzTlRrd09Gb1hEVEk1TURjeE5UQTNOVGt3
+    T0Zvd1FERUxNQWtHCkExVUVCaE1DVkZjeEVEQU9CZ05WQkFnTUIwaHphVzVqYUhVeERUQU
+    xCZ05WQkFjTUJHTnBkSGt4RURBT0JnTlYKQkFvTUIyWnlaV1UxUjBNd2dnRWlNQTBHQ1Nx
+    R1NJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUNwZW05Tgp6VmFsU3JEbzBqcjVWeU
+    1FTi9pMFRabUQ5NXRuSHNPdmUySDAvc1lBanJxUlhLaWhXYnoxcXk5a2hwMkQ3U1JICk80
+    ZEh4d0NpRm9FNnNjWjFDMjEyakhaUFBYaWMybzYwZ3hPRGpaaUU3RVc1TDB3c3ZwdEg1UE
+    11TG80U1ZQNUoKa3dVR3dZWjAxVlJIZFRTeC9SV1J1WE9DS2x1SXFjbW9OQ2g0Zi9oRWQ1
+    eVd2QWdHcXl0c3FCVkt3MkVROUJZSgpvU3NVZWRtZDlIano5UWRWajcyVVdWQ3dGeUJmVW
+    d6MlZIOFNDNTBGbFpnRWpIVEJOakw1T3JpUkh2NGEwbkdWCitZUlpQZHNBSWphNWpVUDI3
+    WE9tK04vZHpIRENUUXJpaFB0WXNpcitpZEY0aFBKTnVod2UweUVhcTh6cUt2S0gKelUrVm
+    9XR1pCNEVzc1RoWkFnTUJBQUdqVURCT01CMEdBMVVkRGdRV0JCVFJOc05QWVVNZm1oNnhN
+    SHNZcGRoegpHQWxVc3pBZkJnTlZIU01FR0RBV2dCVFJOc05QWVVNZm1oNnhNSHNZcGRoek
+    dBbFVzekFNQmdOVkhSTUVCVEFECkFRSC9NQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUFO
+    WDhldmUxZVY2RzhtNmtjQmVENjY0eUk5djlFTFZYUFYKWEowNlZscmN4M3hZenB5TzJhSU
+    RsYkErK3pmUzFGZGxjem1uMWJTaDJqS3lSaTBKUHE4QmMyYnZwS1VQVStqTAp2WUljYkxh
+    VWtUK1lla25ET09NRExwd3BaUnl1VFd3MWRaZy9MbmxHa3VTZ2pncHZ5ck5oWGR4MjE2VH
+    dnakdYCmFvN2hxUUR6dW1IL0NJWDEvQncxOXhqdnk4eTIxZnFnSWpwZ0w0eUIvMWVyQzRp
+    L0kyWittWkViM0RINDU5Z3oKc1RtclVIVWpPMG1TVkhtbkxZS2FZSmJSWVFHUFVRVGc1Zk
+    lZYXNPQUZHM0szQzQ4NU1HUmdNaVNrckFDN0EyTQpaSGlvVU50bTNYRjl0ZkUxc3J0THNQ
+    R2Z5cGlNL2hpR1dJbGdZSkhVaDhOWWpRSVhGOVBiCi0tLS0tRU5EIENFUlRJRklDQVRFLS
+    0tLS0K
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: f5gc-amf
+  name: f5gc-amf
+  namespace: f5gc
+spec:
+  clusterIP: None
+  ports:
+  - name: f5gc-amf
+    port: 29518
+    protocol: TCP
+    targetPort: 29518
+  - name: if-n1n2
+    port: 38412
+    protocol: SCTP
+    targetPort: 38412
+  selector:
+    app: f5gc-amf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: f5gc-amf
+  namespace: f5gc
+  labels:
+    app: f5gc-amf
+    sliceidx: 6d3d79da-f781-4cd9-813a-dbdad01e01c0
+  annotations:
+    free5gc.org/nsi-ids: '[
+      { "id": "4e6db941-47d6-4fce-9c71-f7eb35a75d03"},
+    ]'
+    free5gc.org/nssi-id: 27394d25-dbf5-428e-8fc3-f5b2add67115
+    free5gc.org/supported-snssais: '[ 
+      { "st": 1,
+        "ssd": "010203",
+      },
+      { "st": 1,
+        "ssd": "112233",
+      },
+    ]'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: f5gc-amf
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: f5gc-amf-n1n2
+      labels:
+        app: f5gc-amf
+    spec:
+      containers:
+      - name: f5gc-amf
+        image: monandkey/free5gc-amf:3.0.4
+        imagePullPolicy: IfNotPresent
+        command: [./amf]
+        ports:
+        - containerPort: 29518
+          name: f5gc-amf
+          protocol: TCP
+        - containerPort: 38412
+          name: if-n1n2
+          protocol: SCTP
+        securityContext:
+          privileged: false
+        volumeMounts:
+        - mountPath: /free5gc/config
+          name: f5gc-amf-config
+        - mountPath: /free5gc/support/TLS
+          name: f5gc-amf-cert
+      - name: tcpdump
+        image: corfr/tcpdump
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/sleep
+        - infinity
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsGroup: 0
+        runAsUser: 0
+      serviceAccountName: f5gc-amf-sa
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: f5gc-amf-cert
+        secret:
+          secretName: f5gc-amf-tls-secret
+      - configMap:
+          name: f5gc-amf-config
+        name: f5gc-amf-config
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: f5gc-amf-n1n2
+spec:
+  config: '{ 
+      "cniVersion": "0.3.1",
+      "type": "macvlan",
+      "master": "eth1",
+      "mode": "bridge",
+      "ipam": {
+        "type": "static",
+        "addresses": [
+                {
+                        "address": "172.16.10.20/24",
+                        "gateway": "172.16.10.1"
+                }
+        ]
+      }
+    }'
