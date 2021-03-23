@@ -176,6 +176,7 @@ spec:
           protocol: TCP
       - name: tcpdump
         image: corfr/tcpdump
+        imagePullPolicy: IfNotPresent
         command:
         - /bin/sleep
         - infinity

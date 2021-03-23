@@ -558,6 +558,7 @@ spec:
           name: f5gc-nssf-cert
       - name: tcpdump
         image: corfr/tcpdump
+        imagePullPolicy: IfNotPresent
         command:
         - /bin/sleep
         - infinity
