@@ -236,6 +236,7 @@ spec:
           name: f5gc-udr-cert
       - name: tcpdump
         image: corfr/tcpdump
+        imagePullPolicy: IfNotPresent
         command:
         - /bin/sleep
         - infinity
