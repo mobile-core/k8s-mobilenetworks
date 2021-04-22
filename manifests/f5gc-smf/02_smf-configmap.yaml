@@ -27,11 +27,11 @@ data:
             sd: 010203
           dnnSmfInfoList:
             - dnn: internet
-        # - sNssai:
-        #     sst: 1
-        #     sd: 112233
-        #   dnnSmfInfoList:
-        #     - dnn: internet
+        - sNssai:
+            sst: 1
+            sd: 112233
+          dnnSmfInfoList:
+            - dnn: internet
       pfcp:
         addr: 172.16.30.20
       userplane_information:
