@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: f5gc-gnb
+  labels:
+    app: f5gc-gnb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: f5gc-gnb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: f5gc-gnb
+      annotations:
+        k8s.v1.cni.cncf.io/networks: f5gc-gnb-n1n2, f5gc-gnb-n3
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - name: f5gc-gnb
+        imagePullPolicy: IfNotPresent
+        image: monandkey/ueransim:3.1.9
+        securityContext:
+          privileged: true
+        command: ["/bin/bash", "-c"]
+        args: ["./build/nr-gnb -c ./config/free5gc-gnb.yaml"]
+        volumeMounts:
+        - name: gnb-conf
+          mountPath: /UERANSIM/config/free5gc-gnb.yaml
+          subPath: free5gc-gnb.yaml
+        ports:
+          - containerPort: 38412
+            name: if-n1n2
+            protocol: SCTP
+          - containerPort: 2152
+            name: if-n3
+            protocol: UDP
+      - name: tcpdump
+        image: monandkey/tcpdump
+        imagePullPolicy: IfNotPresent
+        command:
+          - /bin/sleep
+          - infinity
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      serviceAccountName: f5gc-gnb-sa
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: gnb-conf
+        configMap:
+          name: gnb-configmap
+          items: 
+          - key: free5gc-gnb.yaml
+            path: free5gc-gnb.yaml
