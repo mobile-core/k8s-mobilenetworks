@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: f5gc-ue
+  labels:
+    app: f5gc-ue
+  annotations:
+    free5gc.org/nssi-id: '27394d25-dbf5-428e-8fc3-f5b2add67115'
+    free5gc.org/nsi-ids: '[
+        { "id": "4e6db941-47d6-4fce-9c71-f7eb35a75d03" },
+    ]'
+    free5gc.org/supported-snssais: '[
+        { "st": 1,
+          "ssd": "010203",
+        },
+        { "st": 1,
+          "ssd": "112233",
+        },
+    ]'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: f5gc-ue
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: f5gc-ue
+      annotations:
+        k8s.v1.cni.cncf.io/networks: f5gc-ue-n1n2
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - name: f5gc-ue
+        imagePullPolicy: IfNotPresent
+        image: monandkey/ueransim:3.1.9
+        securityContext:
+          privileged: true
+        command: ["/bin/bash"]
+        tty: true
+        # args: ["./build/nr-ue -c ./config/free5gc-ue.yaml"]
+        volumeMounts:
+        - name: tun-volume
+          mountPath: /dev/net/tun
+        - name: ue-conf
+          mountPath: /UERANSIM/config/free5gc-ue.yaml
+          subPath: free5gc-ue.yaml
+        ports:
+          - name: if-n1n2
+            containerPort: 38412
+            protocol: SCTP
+          - name: if-n3
+            containerPort: 2152
+            protocol: UDP
+      - name: tcpdump
+        image: monandkey/tcpdump
+        imagePullPolicy: IfNotPresent
+        command:
+          - /bin/sleep
+          - infinity
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      serviceAccountName: f5gc-ue-sa
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: tun-volume
+        hostPath:
+          path: /dev/net/tun
+      - name: ue-conf
+        configMap:
+          name: ue-configmap
+          items: 
+          - key: free5gc-ue.yaml
+            path: free5gc-ue.yaml
