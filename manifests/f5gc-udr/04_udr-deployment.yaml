@@ -26,7 +26,7 @@ spec:
         runAsGroup: 0
       containers:
         - name: f5gc-udr
-          image: ghcr.io/sumichaaan/free5gc-k8s/f5gc-udr:v3.0.4
+          image: monandkey/free5gc-udr:3.0.4-1
           imagePullPolicy: IfNotPresent
           # imagePullPolicy: Always
           securityContext:
