@@ -107,6 +107,9 @@ EOF
   apt-get install -y kubelet kubeadm kubectl
   apt-mark hold kubelet kubeadm kubectl
 
+  # コマンドオプションの補完機能をインストールして、kubectlを補完
+  apt-get install -y bash-completion
+  echo "source <(kubectl completion bash)" >> /home/vagrant/.bashrc
 
   # 仮想PC間でSSHを可能にする
   cd /home/vagrant/.ssh
