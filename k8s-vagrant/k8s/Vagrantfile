@@ -5,33 +5,27 @@ $configureMaster = <<-SHELL
 
   echo "This is master"
 
-  # /etc/hosts更新
-  cat <<EOF >> /etc/hosts
-172.16.33.11 master
-172.16.33.12 node1
-172.16.33.13 node2
-EOF
-
   # プライベートネットワークのNICのIPアドレスを変数に格納
   IPADDR=$(ip a show eth1 | grep inet | grep -v inet6 | awk '{print $2}' | cut -f1 -d/)
   # kubeletがプライベートネットワークのNICにバインドするように設定
-  sed -i "/KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IPADDR" /etc/sysconfig/kubelet
+  #sed -i "/KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IPADDR" /etc/default/kubelet
+  echo "Environment=\\\"KUBELET_EXTRA_ARGS=--node-ip=$IPADDR\\\"" >> /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
   # kubeletを再起動
   systemctl daemon-reload
   systemctl restart kubelet
-
+  
   # ホスト名を変数に格納
   HOSTNAME=$(hostname -s)
 
   # kubeadm initの実行
-  # Flannel
+  # Flannelの場合
   #kubeadm init --apiserver-advertise-address=$IPADDR --apiserver-cert-extra-sans=$IPADDR --node-name $HOSTNAME --pod-network-cidr=10.244.0.0/16
-  # Calico
+  # Calicoの場合
   # kubeadm init --apiserver-advertise-address=$IPADDR --apiserver-cert-extra-sans=$IPADDR --node-name $HOSTNAME --pod-network-cidr=192.168.0.0/16
   kubeadm init --apiserver-advertise-address=$IPADDR --apiserver-cert-extra-sans=$IPADDR --node-name $HOSTNAME --pod-network-cidr=10.244.0.0/16
-  
-  sleep 10
-  
+
+  sleep 5
+
   # vagrantユーザーがkubectlを実行できるようにする
   sudo --user=vagrant mkdir -p /home/vagrant/.kube
   cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
@@ -39,15 +33,13 @@ EOF
 
   # Flannelのインストール
   #export KUBECONFIG=/etc/kubernetes/admin.conf
-  # kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml
-  #kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-  
+  #kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml
   # Calicoのインストール
   export KUBECONFIG=/etc/kubernetes/admin.conf
   # kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
   # kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
   kubectl apply -f https://docs.projectcalico.org/v3.17/manifests/calico.yaml
-  
+
   # kubectl joinコマンドを保存する
   kubeadm token create --print-join-command > /etc/kubeadm_join_cmd.sh
   chmod +x /etc/kubeadm_join_cmd.sh
@@ -62,22 +54,16 @@ $configureNode = <<-SHELL
 
   echo "This is worker"
 
-  # /etc/hosts更新
-  cat <<EOF >> /etc/hosts
-172.16.33.11 master
-172.16.33.12 node1
-172.16.33.13 node2
-EOF
-
   # プライベートネットワークのNICのIPアドレスを変数に格納
   IPADDR=$(ip a show eth1 | grep inet | grep -v inet6 | awk '{print $2}' | cut -f1 -d/)
   # kubeletがプライベートネットワークのNICにバインドするように設定
-  sed -i "/KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IPADDR" /etc/sysconfig/kubelet
+  #sed -i "/KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IPADDR" /etc/default/kubelet
+  echo "Environment=\\\"KUBELET_EXTRA_ARGS=--node-ip=$IPADDR\\\"" >> /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
   # kubeletを再起動
   systemctl daemon-reload
   systemctl restart kubelet
 
-  yum install -y sshpass
+  apt-get install -y sshpass
   # sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@192.168.33.11:/etc/kubeadm_join_cmd.sh .
   sshpass -p "vagrant" scp -o StrictHostKeyChecking=no vagrant@172.16.33.11:/etc/kubeadm_join_cmd.sh .
   sh ./kubeadm_join_cmd.sh
@@ -99,6 +85,8 @@ Vagrant.configure(2) do |config|
       # ホスト名
       s.vm.hostname = vm_name
       # ノードのベースOSを指定
+      #s.vm.box = "ubuntu/xenial64"
+	    s.vm.box_download_insecure = true
       s.vm.box = "k8s-base"
       # ネットワークを指定
       # pod-network-cidrと重ならないように注意
