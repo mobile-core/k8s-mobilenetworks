@@ -1,0 +1,26 @@
+#!/bin/bash
+# Define Namespaces
+export namespaces='f5gc'
+
+# NFs should be run in priority as below
+# NRF > UDR > UDM > AUSF > NSSF > AMF > PCF > UPF > SMF > N3IWF
+export mongodb=~/k8s-mobilenetworks/manifests/f5gc-mongodb/
+export nrf=~/k8s-mobilenetworks/manifests/f5gc-nrf/
+export udr=~/k8s-mobilenetworks/manifests/f5gc-udr/
+export udm=~/k8s-mobilenetworks/manifests/f5gc-udm/
+export ausf=~/k8s-mobilenetworks/manifests/f5gc-ausf/
+export nssf=~/k8s-mobilenetworks/manifests/f5gc-nssf/
+export amf=~/k8s-mobilenetworks/manifests/f5gc-amf/
+export pcf=~/k8s-mobilenetworks/manifests/f5gc-pcf/
+export upf=~/k8s-mobilenetworks/manifests/f5gc-upf/
+export smf=~/k8s-mobilenetworks/manifests/f5gc-smf/
+export webui=~/k8s-mobilenetworks/manifests/f5gc-webui/
+#export gnbsim=~/k8s-mobilenetworks/manifests/f5gc-gnbsim/
+export gnb=~/k8s-mobilenetworks/manifests/f5gc-gnb/
+export ue=~/k8s-mobilenetworks/manifests/f5gc-ue/
+
+# Change prompt
+# Output image
+# username@hostname:namespace:path$
+# vagrant@master:f5gc:~/$
+PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;35m\]$namespaces\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
