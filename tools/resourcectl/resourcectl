@@ -133,7 +133,6 @@ sub displayMongodbHelp {
 # --------------------------------------------------
 sub getNetworkFunctionList {
     my $namespaces = $ENV{namespaces};
-    my @nfs = ();
 
     unless (defined $namespaces) {
         print "Load the rc file and define the environment variable namespaces.\n";
@@ -146,6 +145,11 @@ sub getNetworkFunctionList {
 
     elsif ($namespaces eq "open5gs") {
         return ("pcrf", "pgw", "sgw", "mme", "enb", "ue");
+    }
+
+    else {
+        print "Unexpected namespaces have been defined in the environment variables.\n";
+        exit(0);
     }
 }
 
