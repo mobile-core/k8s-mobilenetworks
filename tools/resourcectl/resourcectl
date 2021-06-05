@@ -10,6 +10,10 @@ if (!(defined($ARGV[0]))) {
     displayNormalHelp();
 }
 
+elsif ($ARGV[0] eq '-v' || $ARGV[0] eq '--version') {
+    displayVersion();
+}
+
 elsif ($ARGV[0] eq 'node') {
     processForNode();
 }
@@ -28,6 +32,16 @@ elsif ($ARGV[0] eq 'mongodb') {
 
 else {
     displayNormalHelp();
+}
+
+# ==================================================
+# S/W Version part
+# ==================================================
+# --------------------------------------------------
+sub displayVersion {
+    my $version = "1.0";
+
+    print "resourcectl Version " . $version . "\n";
 }
 
 # ==================================================
