@@ -63,6 +63,7 @@ sub displayNormalHelp {
     print "\n";
     print "Options:\n";
     print "  -h, --help          help for resourcectl\n";
+    print "  -v, --version       Show version\n"
 }
 
 # --------------------------------------------------
@@ -134,15 +135,17 @@ sub getNetworkFunctionList {
     my $namespaces = $ENV{namespaces};
     my @nfs = ();
 
+    unless (defined $namespaces) {
+        print "Load the rc file and define the environment variable namespaces.\n";
+        exit(0);
+    }
+
     if ($namespaces eq "f5gc") {
         return ("mongodb", "nrf", "udr", "udm", "ausf", "nssf", "amf", "pcf", "upf", "smf", "webui", "gnb", "ue");
     }
+
     elsif ($namespaces eq "open5gs") {
         return ("pcrf", "pgw", "sgw", "mme", "enb", "ue");
-    }
-
-    if ($#nfs eq "0") {
-        exit(0);
     }
 }
 
