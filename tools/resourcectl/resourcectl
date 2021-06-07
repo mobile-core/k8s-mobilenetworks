@@ -228,24 +228,24 @@ sub executeSshCommand {
 # ==================================================
 # --------------------------------------------------
 sub processForPods {
-    my @nf = ();
-    my @nfuuid = ();
-    getNetworkFunctionListInformation(\@nf, \@nfuuid);
+    my @nfs = ();
+    my @nfuuids = ();
+    getNetworkFunctionListInformation(\@nfs, \@nfuuids);
 
     if (!(defined($ARGV[1]))) {
         displayPodHelp();
     }
 
      elsif ($ARGV[1] eq 'list') {
-        &displayPodList(@nf);
+        &displayPodList(@nfs);
     }
 
-    elsif ($ARGV[1] =~ /[0-9]/ && $ARGV[1] < $#nfuuid+1) {
-        executeKubectlCommandTargetNumber(@nfuuid);
+    elsif ($ARGV[1] =~ /[0-9]/ && $ARGV[1] < $#nfuuids+1) {
+        executeKubectlCommandTargetNumber(@nfuuids);
     }
 
-    elsif (grep {$_ =~ $ARGV[1]} @nfuuid) {
-        executeKubectlCommandTargetFunctionName(@nf, @nfuuid);
+    elsif (grep {$_ =~ $ARGV[1]} @nfuuids) {
+        executeKubectlCommandTargetFunctionName(@nfs, @nfuuids);
     }
 
     elsif ($ARGV[1] eq 'clear') {
@@ -265,22 +265,27 @@ sub processForPods {
 # --------------------------------------------------
 sub getNetworkFunctionListInformation {
     my $namespaces = $ENV{namespaces};
-    my @nfs = getNetworkFunctionList();
-    my $nf = $_[0];
-    my $nfuuid = $_[1];
+    my @nflist = getNetworkFunctionList();
+    my $nfs = $_[0];
+    my $nfuuids = $_[1];
 
-    open (my $filehandle, "kubectl get pods -n $namespaces -o wide |") or die 'Cannot open file: $!';
-    while (my $buff = <$filehandle>) {
-        chomp($buff);
-        foreach my $list (@nfs) {
-            if ($buff =~ $list) {
-                push(@$nf, $list);
-                $buff =~ s/\s+[0-9]\/[0-9].*//;
-                push(@$nfuuid, $buff);
+    my $kubecommand = `kubectl get pods -n $namespaces 2> /dev/null`;
+    my @lines = split (/[\n\r]/, $kubecommand);
+
+    if ($#lines eq "-1") {
+        print STDERR "The Pod has not been deployed.\n";
+        exit(0);
+    }
+
+    foreach my $line (@lines) {
+        foreach my $nf (@nflist) {
+            if ($line =~ $nf) {
+                push(@$nfs, $nf);
+                $line =~ s/\s+[0-9]\/[0-9].*//;
+                push(@$nfuuids, $line);
             }
         }
     }
-    close ($filehandle);
 }
 
 # --------------------------------------------------
