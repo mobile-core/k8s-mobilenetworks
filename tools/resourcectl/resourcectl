@@ -445,37 +445,41 @@ sub getNetworkFunctionStatus {
 # ==================================================
 # tcpdump part
 # ==================================================
+
 sub processForTcpdump {
-    my @nf = ();
-    my @nfuuid = ();
-    getNetworkFunctionListInformation(\@nf, \@nfuuid);
 
     if (!(defined($ARGV[1]))) {
         displayTcpdumpHelp();
     }
 
-     elsif ($ARGV[1] eq 'list') {
-        displayPodList(@nf);
-    }
+    if ($ARGV[1] eq "list" || $ARGV[1] eq "dump" || $ARGV[1] eq "stop" || $ARGV[1] eq "get" || $ARGV[1] =~ /[0-9]/ || grep { $_ eq $ARGV[1] } getNetworkFunctionList()) {
+        my @nf = ();
+        my @nfuuid = ();
+        getNetworkFunctionListInformation(\@nf, \@nfuuid);
 
-     elsif ($ARGV[1] eq 'dump') {
-        executeTcpdumpStart(@nfuuid);
-    }
+        if ($ARGV[1] eq 'list') {
+            displayPodList(@nf);
+        }
 
-    elsif ($ARGV[1] eq 'stop') {
-        executeTcpdumpStop(@nfuuid);
-    }
+        elsif ($ARGV[1] eq 'dump') {
+            executeTcpdumpStart(@nfuuid);
+        }
 
-    elsif ($ARGV[1] eq 'get') {
-        executeTcpdumpGet(@nfuuid);
-    }
+        elsif ($ARGV[1] eq 'stop') {
+            executeTcpdumpStop(@nfuuid);
+        }
 
-    elsif ($ARGV[1] =~ /[0-9]/  && $ARGV[1] < $#nfuuid+1) {
-        executeForTcpdumpKubectlCommandTargetNumber(@nfuuid);
-    }
+        elsif ($ARGV[1] eq 'get') {
+            executeTcpdumpGet(@nfuuid);
+        }
 
-    elsif (grep {$_ =~ $ARGV[1]} @nfuuid) {
-        executeForTcpdumpKubectlCommandTargetFunctionName(@nf, @nfuuid);
+        elsif ($ARGV[1] =~ /[0-9]/  && $ARGV[1] < $#nfuuid+1) {
+            executeForTcpdumpKubectlCommandTargetNumber(@nfuuid);
+        }
+
+        elsif (grep {$_ =~ $ARGV[1]} @nfuuid) {
+            executeForTcpdumpKubectlCommandTargetFunctionName(@nf, @nfuuid);
+        }
     }
 
     else {
