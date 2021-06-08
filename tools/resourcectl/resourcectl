@@ -7,35 +7,35 @@ use warnings;
 # main part
 # ==================================================
 if (!(defined($ARGV[0]))) {
-    displayNormalHelp();
+    &displayNormalHelp();
 }
 
 elsif ($ARGV[0] eq '-v' || $ARGV[0] eq '--version') {
-    displayVersion();
+    &displayVersion();
 }
 
 elsif ($ARGV[0] eq 'node') {
-    processForNode();
+    &processForNode();
 }
 
 elsif ($ARGV[0] eq 'pods') {
-    processForPods();
+    &processForPods();
 }
 
 elsif ($ARGV[0] eq 'tcpdump') {
-    processForTcpdump();
+    &processForTcpdump();
 }
 
 elsif ($ARGV[0] eq 'mongodb') {
-    processForMongodb();
+    &processForMongodb();
 }
 
 elsif ($ARGV[0] eq 'completion') {
-    processForCompletion();
+    &processForCompletion();
 }
 
 else {
-    displayNormalHelp();
+    &displayNormalHelp();
 }
 
 # ==================================================
