@@ -122,6 +122,8 @@ sub displayMongodbHelp {
     print "\n";
     print "Commands:\n";
     print "  register            Outputs the register status of NF\n";
+    print "  shell               Call bash\n";
+    print "  mongocli            Call mongocli\n";
     print "\n";
     print "Options:\n";
     print "  -h, --help          help for resourcectl\n";
@@ -565,9 +567,19 @@ sub processForMongodb {
     if (!(defined($ARGV[1]))) {
         displayMongodbHelp();
     }
+
     elsif ($ARGV[1] =~ "register") {
         executeForMongodbNetworkFunctionRegister();
     }
+
+    elsif ($ARGV[1] =~ "shell") {
+        executeForMongodbKubectlCommandShell();
+    }
+
+    elsif ($ARGV[1] =~ "mongocli") {
+        executeForMongodbKubectlCommandMongoCli();
+    }
+
     else {
         displayMongodbHelp();
     }
@@ -579,17 +591,20 @@ sub getMongodbInformation {
     my $nf = "mongodb";
     my $nfuuid = $_[0];
 
-    open (my $filehandle, "kubectl get pods -n $namespaces -o wide |") or die 'Cannot open file: $!';
-    while (my $buff = <$filehandle>) {
-        chomp($buff);
-        if ($buff =~ $nf) {
-            $buff =~ s/\s+[0-9]\/[0-9].*//;
-            if ($buff =~ "mongodb") {
-                $$nfuuid = $buff;
-            }
+    my $kubecommand = `kubectl get pods -n $namespaces 2> /dev/null`;
+    my @lines = split (/[\n\r]/, $kubecommand);
+
+    if ($#lines eq "-1") {
+        print STDERR "The Pod has not been deployed.\n";
+        exit(0);
+    }
+
+    foreach my $line (@lines) {
+        if ($line =~ $nf) {
+            $line =~ s/\s+[0-9]\/[0-9].*//;
+            $$nfuuid = $line;
         }
     }
-    close ($filehandle);
 }
 
 # --------------------------------------------------
@@ -605,4 +620,28 @@ sub executeForMongodbNetworkFunctionRegister {
     print "\n";
     system($kubecommand);
     print "\n";
+}
+
+# --------------------------------------------------
+sub executeForMongodbKubectlCommandShell {
+    my $namespaces = $ENV{namespaces};
+    my $nfuuid = "";
+
+    getMongodbInformation(\$nfuuid);
+
+    my $kubecommand = "kubectl exec -n " . $namespaces . " -it " . $nfuuid . " -c mongodb -- /bin/bash";
+    system($kubecommand);
+
+}
+
+# --------------------------------------------------
+sub executeForMongodbKubectlCommandMongoCli {
+    my $namespaces = $ENV{namespaces};
+    my $nfuuid = "";
+
+    getMongodbInformation(\$nfuuid);
+
+    my $kubecommand = "kubectl exec -n " . $namespaces . " -it " . $nfuuid . " -c mongodb -- /usr/bin/mongo";
+    system($kubecommand);
+
 }
