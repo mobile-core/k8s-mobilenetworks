@@ -30,6 +30,10 @@ elsif ($ARGV[0] eq 'mongodb') {
     processForMongodb();
 }
 
+elsif ($ARGV[0] eq 'completion') {
+    processForCompletion();
+}
+
 else {
     displayNormalHelp();
 }
@@ -167,11 +171,11 @@ sub processForNode {
     }
 
     elsif ($ARGV[1] eq 'list') {
-        &displayHostList(@hostnames);
+        displayHostList(@hostnames);
     }
 
     elsif ($ARGV[1] =~ /[0-9]/ && $ARGV[1] < $#hostnames+1 ) {
-        &executeSshCommand(@hostnames);
+        executeSshCommand(@hostnames);
     }
 
     else {
@@ -249,7 +253,7 @@ sub processForPods {
         getNetworkFunctionListInformation(\@nfs, \@nfuuids);
 
         if ($ARGV[1] eq 'list') {
-            &displayPodList(@nfs);
+            displayPodList(@nfs);
         }
 
         elsif ($ARGV[1] =~ /[0-9]/ && $ARGV[1] < $#nfuuids+1) {
@@ -657,4 +661,35 @@ sub executeForMongodbKubectlCommandMongoCli {
     my $kubecommand = "kubectl exec -n " . $namespaces . " -it " . $nfuuid . " -c mongodb -- /usr/bin/mongo";
     system($kubecommand);
 
+}
+
+
+# ==================================================
+# Completion part
+# ==================================================
+# --------------------------------------------------
+sub processForCompletion() {
+    print "_resourcectl_completion(){\n";
+    print "\n";
+    print "    local cur prev cword\n";
+    print "    _get_comp_words_by_ref -n : cur prev cword\n";
+    print "    args=\"\"\n";
+    print "\n";
+    print "    if [ \${cword} -eq 1 ];then\n";
+    print "        args=\"node pods tcpdump\"\n";
+    print "    fi\n";
+    print "\n";
+    print "    if [ \${cword} -eq 2 ]; then\n";
+    print "        if [ \${prev} = \"node\" ]; then\n";
+    print "            args=\"list NODE_NUM\"\n";
+    print "        elif [ \${prev} = \"pods\" ]; then\n";
+    print "            args=\"list deploy clear POD_NUM POD_NAME\"\n";
+    print "        elif [ \${prev} = \"tcpdump\" ]; then\n";
+    print "            args=\"list dump stop get POD_NUM POD_NAME\"\n";
+    print "        fi\n";
+    print "    fi\n";
+    print "    COMPREPLY=( \$(compgen -W \"\$args\" -- \${cur}) );\n";
+    print "}\n";
+    print "\n";
+    print "complete -F _resourcectl_completion resourcectl\n";
 }
