@@ -137,7 +137,7 @@ sub getNetworkFunctionList {
     my $namespaces = $ENV{namespaces};
 
     unless (defined $namespaces) {
-        print "Load the rc file and define the environment variable namespaces.\n";
+        print STDERR "Load the rc file and define the environment variable namespaces.\n";
         exit(0);
     }
 
@@ -150,7 +150,7 @@ sub getNetworkFunctionList {
     }
 
     else {
-        print "Unexpected namespaces have been defined in the environment variables.\n";
+        print STDERR "Unexpected namespaces have been defined in the environment variables.\n";
         exit(0);
     }
 }
@@ -315,7 +315,6 @@ sub executeKubectlCommandTargetNumber {
 
     my $kubecommand = "kubectl exec -n " . $namespaces . " -it " . $nfuuid[$ARGV[1]] . " -- /bin/sh";
     system($kubecommand);
-
 }
 
 # --------------------------------------------------
