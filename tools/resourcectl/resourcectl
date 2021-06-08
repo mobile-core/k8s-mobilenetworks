@@ -235,7 +235,7 @@ sub processForPods {
         displayPodHelp();
     }
 
-    if ($ARGV[1] eq "list" || $ARGV[1] eq "clear" || $ARGV[1] eq "deploy" || $ARGV[1] =~ /[0-9]/ || grep { $_ eq $ARGV[1] } getNetworkFunctionList()) {
+    elsif ($ARGV[1] eq "list" || $ARGV[1] eq "clear" || $ARGV[1] eq "deploy" || $ARGV[1] =~ /[0-9]/ || grep { $_ eq $ARGV[1] } getNetworkFunctionList()) {
         if ($ARGV[1] eq 'clear') {
             clearForPods();
         }
@@ -336,11 +336,12 @@ sub executeKubectlCommandTargetFunctionName {
 sub clearForPods {
     my $namespaces = $ENV{namespaces};
 
-    if (!(defined($ARGV[1]))) {
-        displayPodHelp();
+    unless (defined $namespaces) {
+        print STDERR "Load the rc file and define the environment variable namespaces.\n";
+        exit(0);
     }
 
-    elsif ($namespaces eq "f5gc") {
+    if ($namespaces eq "f5gc") {
         clearForFree5gcPod();
     }
 
@@ -349,7 +350,8 @@ sub clearForPods {
     }
 
     else {
-        displayPodHelp();
+        print STDERR "Unexpected namespaces have been defined in the environment variables.\n";
+        exit(0);
     }
 }
 
@@ -376,11 +378,12 @@ sub clearForOpen5gsPod {
 sub deployForPods {
     my $namespaces = $ENV{namespaces};
 
-    if (!(defined($ARGV[1]))) {
-        displayPodHelp();
+    unless (defined $namespaces) {
+        print STDERR "Load the rc file and define the environment variable namespaces.\n";
+        exit(0);
     }
 
-    elsif ($namespaces eq "f5gc") {
+    if ($namespaces eq "f5gc") {
         deployForFree5gcPod();
     }
 
@@ -389,7 +392,8 @@ sub deployForPods {
     }
 
     else {
-        displayPodHelp();
+        print STDERR "Unexpected namespaces have been defined in the environment variables.\n";
+        exit(0);
     }
 }
 
@@ -453,7 +457,7 @@ sub processForTcpdump {
         displayTcpdumpHelp();
     }
 
-    if ($ARGV[1] eq "list" || $ARGV[1] eq "dump" || $ARGV[1] eq "stop" || $ARGV[1] eq "get" || $ARGV[1] =~ /[0-9]/ || grep { $_ eq $ARGV[1] } getNetworkFunctionList()) {
+    elsif ($ARGV[1] eq "list" || $ARGV[1] eq "dump" || $ARGV[1] eq "stop" || $ARGV[1] eq "get" || $ARGV[1] =~ /[0-9]/ || grep { $_ eq $ARGV[1] } getNetworkFunctionList()) {
         my @nf = ();
         my @nfuuid = ();
         getNetworkFunctionListInformation(\@nf, \@nfuuid);
@@ -589,6 +593,16 @@ sub getMongodbInformation {
     my $namespaces = $ENV{namespaces};
     my $nf = "mongodb";
     my $nfuuid = $_[0];
+
+    unless (defined $namespaces) {
+        print STDERR "Load the rc file and define the environment variable namespaces.\n";
+        exit(0);
+    }
+
+    if ($namespaces ne "f5gc" && $namespaces ne "open5gs") {
+        print STDERR "Unexpected namespaces have been defined in the environment variables.\n";
+        exit(0);
+    }
 
     my $kubecommand = `kubectl get pods -n $namespaces 2> /dev/null`;
     my @lines = split (/[\n\r]/, $kubecommand);
