@@ -7,27 +7,45 @@ use warnings;
 # main part
 # ==================================================
 if (!(defined($ARGV[0]))) {
-    displayNormalHelp();
+    &displayNormalHelp();
+}
+
+elsif ($ARGV[0] eq '-v' || $ARGV[0] eq '--version') {
+    &displayVersion();
 }
 
 elsif ($ARGV[0] eq 'node') {
-    processForNode();
+    &processForNode();
 }
 
 elsif ($ARGV[0] eq 'pods') {
-    processForPods();
+    &processForPods();
 }
 
 elsif ($ARGV[0] eq 'tcpdump') {
-    processForTcpdump();
+    &processForTcpdump();
 }
 
 elsif ($ARGV[0] eq 'mongodb') {
-    processForMongodb();
+    &processForMongodb();
+}
+
+elsif ($ARGV[0] eq 'completion') {
+    &processForCompletion();
 }
 
 else {
-    displayNormalHelp();
+    &displayNormalHelp();
+}
+
+# ==================================================
+# S/W Version part
+# ==================================================
+# --------------------------------------------------
+sub displayVersion {
+    my $version = "1.0";
+
+    print "resourcectl Version " . $version . "\n";
 }
 
 # ==================================================
@@ -49,6 +67,7 @@ sub displayNormalHelp {
     print "\n";
     print "Options:\n";
     print "  -h, --help          help for resourcectl\n";
+    print "  -v, --version       Show version\n"
 }
 
 # --------------------------------------------------
@@ -107,6 +126,8 @@ sub displayMongodbHelp {
     print "\n";
     print "Commands:\n";
     print "  register            Outputs the register status of NF\n";
+    print "  shell               Call bash\n";
+    print "  mongocli            Call mongocli\n";
     print "\n";
     print "Options:\n";
     print "  -h, --help          help for resourcectl\n";
@@ -118,16 +139,22 @@ sub displayMongodbHelp {
 # --------------------------------------------------
 sub getNetworkFunctionList {
     my $namespaces = $ENV{namespaces};
-    my @nfs = ();
+
+    unless (defined $namespaces) {
+        print STDERR "Load the rc file and define the environment variable namespaces.\n";
+        exit(0);
+    }
 
     if ($namespaces eq "f5gc") {
         return ("mongodb", "nrf", "udr", "udm", "ausf", "nssf", "amf", "pcf", "upf", "smf", "webui", "gnb", "ue");
     }
+
     elsif ($namespaces eq "open5gs") {
         return ("pcrf", "pgw", "sgw", "mme", "enb", "ue");
     }
 
-    if ($#nfs eq "0") {
+    else {
+        print STDERR "Unexpected namespaces have been defined in the environment variables.\n";
         exit(0);
     }
 }
@@ -144,11 +171,11 @@ sub processForNode {
     }
 
     elsif ($ARGV[1] eq 'list') {
-        &displayHostList(@hostnames);
+        displayHostList(@hostnames);
     }
 
     elsif ($ARGV[1] =~ /[0-9]/ && $ARGV[1] < $#hostnames+1 ) {
-        &executeSshCommand(@hostnames);
+        executeSshCommand(@hostnames);
     }
 
     else {
@@ -207,33 +234,35 @@ sub executeSshCommand {
 # ==================================================
 # --------------------------------------------------
 sub processForPods {
-    my @nf = ();
-    my @nfuuid = ();
-    getNetworkFunctionListInformation(\@nf, \@nfuuid);
 
     if (!(defined($ARGV[1]))) {
         displayPodHelp();
     }
 
-     elsif ($ARGV[1] eq 'list') {
-        &displayPodList(@nf);
-    }
+    elsif ($ARGV[1] eq "list" || $ARGV[1] eq "clear" || $ARGV[1] eq "deploy" || $ARGV[1] =~ /[0-9]/ || grep { $_ eq $ARGV[1] } getNetworkFunctionList()) {
+        if ($ARGV[1] eq 'clear') {
+            clearForPods();
+        }
 
-    elsif ($ARGV[1] =~ /[0-9]/ && $ARGV[1] < $#nfuuid+1) {
-        executeKubectlCommandTargetNumber(@nfuuid);
-    }
+        elsif ($ARGV[1] eq 'deploy') {
+            deployForPods();
+        }
 
-    elsif (grep {$_ =~ $ARGV[1]} @nfuuid) {
-        executeKubectlCommandTargetFunctionName(@nf, @nfuuid);
-    }
+        my @nfs = ();
+        my @nfuuids = ();
+        getNetworkFunctionListInformation(\@nfs, \@nfuuids);
 
-    elsif ($ARGV[1] eq 'clear') {
-        clearForPods();
-    }
+        if ($ARGV[1] eq 'list') {
+            displayPodList(@nfs);
+        }
 
+        elsif ($ARGV[1] =~ /[0-9]/ && $ARGV[1] < $#nfuuids+1) {
+            executeKubectlCommandTargetNumber(@nfuuids);
+        }
 
-    elsif ($ARGV[1] eq 'deploy') {
-        deployForPods();
+        elsif (grep {$_ =~ $ARGV[1]} @nfuuids) {
+            executeKubectlCommandTargetFunctionName(@nfs, @nfuuids);
+        }
     }
 
     else {
@@ -244,22 +273,27 @@ sub processForPods {
 # --------------------------------------------------
 sub getNetworkFunctionListInformation {
     my $namespaces = $ENV{namespaces};
-    my @nfs = getNetworkFunctionList();
-    my $nf = $_[0];
-    my $nfuuid = $_[1];
+    my @nflist = getNetworkFunctionList();
+    my $nfs = $_[0];
+    my $nfuuids = $_[1];
 
-    open (my $filehandle, "kubectl get pods -n $namespaces -o wide |") or die 'Cannot open file: $!';
-    while (my $buff = <$filehandle>) {
-        chomp($buff);
-        foreach my $list (@nfs) {
-            if ($buff =~ $list) {
-                push(@$nf, $list);
-                $buff =~ s/\s+[0-9]\/[0-9].*//;
-                push(@$nfuuid, $buff);
+    my $kubecommand = `kubectl get pods -n $namespaces 2> /dev/null`;
+    my @lines = split (/[\n\r]/, $kubecommand);
+
+    if ($#lines eq "-1") {
+        print STDERR "The Pod has not been deployed.\n";
+        exit(0);
+    }
+
+    foreach my $line (@lines) {
+        foreach my $nf (@nflist) {
+            if ($line =~ $nf) {
+                push(@$nfs, $nf);
+                $line =~ s/\s+[0-9]\/[0-9].*//;
+                push(@$nfuuids, $line);
             }
         }
     }
-    close ($filehandle);
 }
 
 # --------------------------------------------------
@@ -285,7 +319,6 @@ sub executeKubectlCommandTargetNumber {
 
     my $kubecommand = "kubectl exec -n " . $namespaces . " -it " . $nfuuid[$ARGV[1]] . " -- /bin/sh";
     system($kubecommand);
-
 }
 
 # --------------------------------------------------
@@ -307,11 +340,12 @@ sub executeKubectlCommandTargetFunctionName {
 sub clearForPods {
     my $namespaces = $ENV{namespaces};
 
-    if (!(defined($ARGV[1]))) {
-        displayPodHelp();
+    unless (defined $namespaces) {
+        print STDERR "Load the rc file and define the environment variable namespaces.\n";
+        exit(0);
     }
 
-    elsif ($namespaces eq "f5gc") {
+    if ($namespaces eq "f5gc") {
         clearForFree5gcPod();
     }
 
@@ -320,7 +354,8 @@ sub clearForPods {
     }
 
     else {
-        displayPodHelp();
+        print STDERR "Unexpected namespaces have been defined in the environment variables.\n";
+        exit(0);
     }
 }
 
@@ -333,7 +368,7 @@ sub clearForFree5gcPod {
         $flag = getNetworkFunctionStatus($targetManifestFile);
 
         if ($flag eq 1) {
-            my $kubecommand = `kubectl delete -k $targetManifestFile`;
+            my $kubecommand = `kubectl delete -k $targetManifestFile > /dev/null 2>&1`;
         }
     }
 }
@@ -347,11 +382,12 @@ sub clearForOpen5gsPod {
 sub deployForPods {
     my $namespaces = $ENV{namespaces};
 
-    if (!(defined($ARGV[1]))) {
-        displayPodHelp();
+    unless (defined $namespaces) {
+        print STDERR "Load the rc file and define the environment variable namespaces.\n";
+        exit(0);
     }
 
-    elsif ($namespaces eq "f5gc") {
+    if ($namespaces eq "f5gc") {
         deployForFree5gcPod();
     }
 
@@ -360,7 +396,8 @@ sub deployForPods {
     }
 
     else {
-        displayPodHelp();
+        print STDERR "Unexpected namespaces have been defined in the environment variables.\n";
+        exit(0);
     }
 }
 
@@ -372,7 +409,7 @@ sub deployForFree5gcPod {
     # NFs should be run in priority as below
     # NRF > UDR > UDM > AUSF > NSSF > AMF > PCF > UPF > SMF > N3IWF > WEBUI > GNB > UE
     foreach my $targetManifestFile (@targetManifestFiles) {
-        my $kubecommand = `kubectl apply -k $targetManifestFile`;
+        my $kubecommand = `kubectl apply -k $targetManifestFile > /dev/null 2>&1`;
 
         do {
             $flag = getNetworkFunctionStatus($targetManifestFile);
@@ -391,7 +428,7 @@ sub getNetworkFunctionStatus {
     my @nfs = getNetworkFunctionList();
     my $targetManifestFile = $_[0];
 
-    my $kubecommand = `kubectl get pods -n $namespaces`;
+    my $kubecommand = `kubectl get pods -n $namespaces 2> /dev/null`;
     my @lines = split (/[\n\r]/, $kubecommand);
 
     foreach my $nf (@nfs) {
@@ -417,37 +454,41 @@ sub getNetworkFunctionStatus {
 # ==================================================
 # tcpdump part
 # ==================================================
+
 sub processForTcpdump {
-    my @nf = ();
-    my @nfuuid = ();
-    getNetworkFunctionListInformation(\@nf, \@nfuuid);
 
     if (!(defined($ARGV[1]))) {
         displayTcpdumpHelp();
     }
 
-     elsif ($ARGV[1] eq 'list') {
-        displayPodList(@nf);
-    }
+    elsif ($ARGV[1] eq "list" || $ARGV[1] eq "dump" || $ARGV[1] eq "stop" || $ARGV[1] eq "get" || $ARGV[1] =~ /[0-9]/ || grep { $_ eq $ARGV[1] } getNetworkFunctionList()) {
+        my @nf = ();
+        my @nfuuid = ();
+        getNetworkFunctionListInformation(\@nf, \@nfuuid);
 
-     elsif ($ARGV[1] eq 'dump') {
-        executeTcpdumpStart(@nfuuid);
-    }
+        if ($ARGV[1] eq 'list') {
+            displayPodList(@nf);
+        }
 
-    elsif ($ARGV[1] eq 'stop') {
-        executeTcpdumpStop(@nfuuid);
-    }
+        elsif ($ARGV[1] eq 'dump') {
+            executeTcpdumpStart(@nfuuid);
+        }
 
-    elsif ($ARGV[1] eq 'get') {
-        executeTcpdumpGet(@nfuuid);
-    }
+        elsif ($ARGV[1] eq 'stop') {
+            executeTcpdumpStop(@nfuuid);
+        }
 
-    elsif ($ARGV[1] =~ /[0-9]/  && $ARGV[1] < $#nfuuid+1) {
-        executeForTcpdumpKubectlCommandTargetNumber(@nfuuid);
-    }
+        elsif ($ARGV[1] eq 'get') {
+            executeTcpdumpGet(@nfuuid);
+        }
 
-    elsif (grep {$_ =~ $ARGV[1]} @nfuuid) {
-        executeForTcpdumpKubectlCommandTargetFunctionName(@nf, @nfuuid);
+        elsif ($ARGV[1] =~ /[0-9]/  && $ARGV[1] < $#nfuuid+1) {
+            executeForTcpdumpKubectlCommandTargetNumber(@nfuuid);
+        }
+
+        elsif (grep {$_ =~ $ARGV[1]} @nfuuid) {
+            executeForTcpdumpKubectlCommandTargetFunctionName(@nf, @nfuuid);
+        }
     }
 
     else {
@@ -533,9 +574,19 @@ sub processForMongodb {
     if (!(defined($ARGV[1]))) {
         displayMongodbHelp();
     }
+
     elsif ($ARGV[1] =~ "register") {
         executeForMongodbNetworkFunctionRegister();
     }
+
+    elsif ($ARGV[1] =~ "shell") {
+        executeForMongodbKubectlCommandShell();
+    }
+
+    elsif ($ARGV[1] =~ "mongocli") {
+        executeForMongodbKubectlCommandMongoCli();
+    }
+
     else {
         displayMongodbHelp();
     }
@@ -547,17 +598,30 @@ sub getMongodbInformation {
     my $nf = "mongodb";
     my $nfuuid = $_[0];
 
-    open (my $filehandle, "kubectl get pods -n $namespaces -o wide |") or die 'Cannot open file: $!';
-    while (my $buff = <$filehandle>) {
-        chomp($buff);
-        if ($buff =~ $nf) {
-            $buff =~ s/\s+[0-9]\/[0-9].*//;
-            if ($buff =~ "mongodb") {
-                $$nfuuid = $buff;
-            }
+    unless (defined $namespaces) {
+        print STDERR "Load the rc file and define the environment variable namespaces.\n";
+        exit(0);
+    }
+
+    if ($namespaces ne "f5gc" && $namespaces ne "open5gs") {
+        print STDERR "Unexpected namespaces have been defined in the environment variables.\n";
+        exit(0);
+    }
+
+    my $kubecommand = `kubectl get pods -n $namespaces 2> /dev/null`;
+    my @lines = split (/[\n\r]/, $kubecommand);
+
+    if ($#lines eq "-1") {
+        print STDERR "The Pod has not been deployed.\n";
+        exit(0);
+    }
+
+    foreach my $line (@lines) {
+        if ($line =~ $nf) {
+            $line =~ s/\s+[0-9]\/[0-9].*//;
+            $$nfuuid = $line;
         }
     }
-    close ($filehandle);
 }
 
 # --------------------------------------------------
@@ -573,4 +637,59 @@ sub executeForMongodbNetworkFunctionRegister {
     print "\n";
     system($kubecommand);
     print "\n";
+}
+
+# --------------------------------------------------
+sub executeForMongodbKubectlCommandShell {
+    my $namespaces = $ENV{namespaces};
+    my $nfuuid = "";
+
+    getMongodbInformation(\$nfuuid);
+
+    my $kubecommand = "kubectl exec -n " . $namespaces . " -it " . $nfuuid . " -c mongodb -- /bin/bash";
+    system($kubecommand);
+
+}
+
+# --------------------------------------------------
+sub executeForMongodbKubectlCommandMongoCli {
+    my $namespaces = $ENV{namespaces};
+    my $nfuuid = "";
+
+    getMongodbInformation(\$nfuuid);
+
+    my $kubecommand = "kubectl exec -n " . $namespaces . " -it " . $nfuuid . " -c mongodb -- /usr/bin/mongo";
+    system($kubecommand);
+
+}
+
+
+# ==================================================
+# Completion part
+# ==================================================
+# --------------------------------------------------
+sub processForCompletion() {
+    print "_resourcectl_completion(){\n";
+    print "\n";
+    print "    local cur prev cword\n";
+    print "    _get_comp_words_by_ref -n : cur prev cword\n";
+    print "    args=\"\"\n";
+    print "\n";
+    print "    if [ \${cword} -eq 1 ];then\n";
+    print "        args=\"node pods tcpdump\"\n";
+    print "    fi\n";
+    print "\n";
+    print "    if [ \${cword} -eq 2 ]; then\n";
+    print "        if [ \${prev} = \"node\" ]; then\n";
+    print "            args=\"list NODE_NUM\"\n";
+    print "        elif [ \${prev} = \"pods\" ]; then\n";
+    print "            args=\"list deploy clear POD_NUM POD_NAME\"\n";
+    print "        elif [ \${prev} = \"tcpdump\" ]; then\n";
+    print "            args=\"list dump stop get POD_NUM POD_NAME\"\n";
+    print "        fi\n";
+    print "    fi\n";
+    print "    COMPREPLY=( \$(compgen -W \"\$args\" -- \${cur}) );\n";
+    print "}\n";
+    print "\n";
+    print "complete -F _resourcectl_completion resourcectl\n";
 }
