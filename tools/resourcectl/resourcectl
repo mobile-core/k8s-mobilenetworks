@@ -228,33 +228,35 @@ sub executeSshCommand {
 # ==================================================
 # --------------------------------------------------
 sub processForPods {
-    my @nfs = ();
-    my @nfuuids = ();
-    getNetworkFunctionListInformation(\@nfs, \@nfuuids);
 
     if (!(defined($ARGV[1]))) {
         displayPodHelp();
     }
 
-     elsif ($ARGV[1] eq 'list') {
-        &displayPodList(@nfs);
-    }
+    if ($ARGV[1] eq "list" || $ARGV[1] eq "clear" || $ARGV[1] eq "deploy" || $ARGV[1] =~ /[0-9]/ || grep { $_ eq $ARGV[1] } getNetworkFunctionList()) {
+        if ($ARGV[1] eq 'clear') {
+            clearForPods();
+        }
 
-    elsif ($ARGV[1] =~ /[0-9]/ && $ARGV[1] < $#nfuuids+1) {
-        executeKubectlCommandTargetNumber(@nfuuids);
-    }
+        elsif ($ARGV[1] eq 'deploy') {
+            deployForPods();
+        }
 
-    elsif (grep {$_ =~ $ARGV[1]} @nfuuids) {
-        executeKubectlCommandTargetFunctionName(@nfs, @nfuuids);
-    }
+        my @nfs = ();
+        my @nfuuids = ();
+        getNetworkFunctionListInformation(\@nfs, \@nfuuids);
 
-    elsif ($ARGV[1] eq 'clear') {
-        clearForPods();
-    }
+        if ($ARGV[1] eq 'list') {
+            &displayPodList(@nfs);
+        }
 
+        elsif ($ARGV[1] =~ /[0-9]/ && $ARGV[1] < $#nfuuids+1) {
+            executeKubectlCommandTargetNumber(@nfuuids);
+        }
 
-    elsif ($ARGV[1] eq 'deploy') {
-        deployForPods();
+        elsif (grep {$_ =~ $ARGV[1]} @nfuuids) {
+            executeKubectlCommandTargetFunctionName(@nfs, @nfuuids);
+        }
     }
 
     else {
@@ -359,7 +361,7 @@ sub clearForFree5gcPod {
         $flag = getNetworkFunctionStatus($targetManifestFile);
 
         if ($flag eq 1) {
-            my $kubecommand = `kubectl delete -k $targetManifestFile`;
+            my $kubecommand = `kubectl delete -k $targetManifestFile > /dev/null 2>&1`;
         }
     }
 }
@@ -398,7 +400,7 @@ sub deployForFree5gcPod {
     # NFs should be run in priority as below
     # NRF > UDR > UDM > AUSF > NSSF > AMF > PCF > UPF > SMF > N3IWF > WEBUI > GNB > UE
     foreach my $targetManifestFile (@targetManifestFiles) {
-        my $kubecommand = `kubectl apply -k $targetManifestFile`;
+        my $kubecommand = `kubectl apply -k $targetManifestFile > /dev/null 2>&1`;
 
         do {
             $flag = getNetworkFunctionStatus($targetManifestFile);
@@ -417,7 +419,7 @@ sub getNetworkFunctionStatus {
     my @nfs = getNetworkFunctionList();
     my $targetManifestFile = $_[0];
 
-    my $kubecommand = `kubectl get pods -n $namespaces`;
+    my $kubecommand = `kubectl get pods -n $namespaces 2> /dev/null`;
     my @lines = split (/[\n\r]/, $kubecommand);
 
     foreach my $nf (@nfs) {
