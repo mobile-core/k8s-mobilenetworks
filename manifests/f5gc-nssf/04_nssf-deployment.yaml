@@ -34,7 +34,7 @@ spec:
         runAsGroup: 0
       containers:
         - name: f5gc-nssf
-          image: monandkey/free5gc-nssf:3.0.4-1
+          image: mobilecore/free5gc-nssf:3.0.4
           imagePullPolicy: IfNotPresent
           # imagePullPolicy: Always
           securityContext:
@@ -49,7 +49,7 @@ spec:
               name: f5gc-nssf
               protocol: TCP
         - name: tcpdump
-          image: monandkey/tcpdump
+          image: mobilecore/tcpdump:latest
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sleep

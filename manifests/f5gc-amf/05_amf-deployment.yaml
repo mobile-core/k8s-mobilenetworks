@@ -37,7 +37,7 @@ spec:
         runAsGroup: 0
       containers:
         - name: f5gc-amf
-          image: monandkey/free5gc-amf:3.0.4-1
+          image: mobilecore/free5gc-amf:3.0.4
           imagePullPolicy: IfNotPresent
           # imagePullPolicy: Always
           securityContext:
@@ -55,7 +55,7 @@ spec:
               name: if-n1n2
               protocol: SCTP
         - name: tcpdump
-          image: monandkey/tcpdump
+          image: mobilecore/tcpdump:latest
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sleep
