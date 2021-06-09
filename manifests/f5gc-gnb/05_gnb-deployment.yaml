@@ -24,7 +24,7 @@ spec:
       containers:
       - name: f5gc-gnb
         imagePullPolicy: IfNotPresent
-        image: monandkey/ueransim:3.1.9
+        image: mobilecore/ueransim:3.1.9
         securityContext:
           privileged: true
         command: ["/bin/bash", "-c"]
@@ -41,7 +41,7 @@ spec:
             name: if-n3
             protocol: UDP
       - name: tcpdump
-        image: monandkey/tcpdump
+        image: mobilecore/tcpdump:latest
         imagePullPolicy: IfNotPresent
         command:
           - /bin/sleep

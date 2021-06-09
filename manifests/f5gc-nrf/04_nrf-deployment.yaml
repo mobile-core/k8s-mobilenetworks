@@ -26,7 +26,7 @@ spec:
         runAsGroup: 0
       containers:
         - name: f5gc-nrf
-          image: monandkey/free5gc-nrf:3.0.4-1
+          image: mobilecore/free5gc-nrf:3.0.4
           imagePullPolicy: IfNotPresent
           # imagePullPolicy: Always
           securityContext:
@@ -41,7 +41,7 @@ spec:
               name: f5gc-nrf
               protocol: TCP
         - name: tcpdump
-          image: monandkey/tcpdump
+          image: mobilecore/tcpdump:latest
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sleep

@@ -29,7 +29,7 @@ spec:
         runAsGroup: 0
       containers:
         - name: f5gc-upf
-          image: monandkey/free5gc-upf:3.0.4-1
+          image: mobilecore/free5gc-upf:3.0.4
           imagePullPolicy: IfNotPresent
           # imagePullPolicy: Always
           securityContext:
@@ -49,7 +49,7 @@ spec:
               name: if-n4
               protocol: UDP
         - name: tcpdump
-          image: monandkey/tcpdump
+          image: mobilecore/tcpdump:latest
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sleep
