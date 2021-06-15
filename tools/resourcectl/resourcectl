@@ -34,6 +34,15 @@ elsif ($ARGV[0] eq 'completion') {
     &processForCompletion();
 }
 
+elsif ($ARGV[0] eq 'ueransim') {
+    &processForUeransim();
+}
+
+elsif ($ARGV[0] eq 'log') {
+    &processForCompletion();
+    # &processForNflog();
+}
+
 else {
     &displayNormalHelp();
 }
@@ -261,7 +270,7 @@ sub processForPods {
         }
 
         elsif (grep {$_ =~ $ARGV[1]} @nfuuids) {
-            executeKubectlCommandTargetFunctionName(@nfs, @nfuuids);
+            executeKubectlCommandTargetFunctionName(\@nfs, \@nfuuids);
         }
     }
 
@@ -324,12 +333,15 @@ sub executeKubectlCommandTargetNumber {
 # --------------------------------------------------
 sub executeKubectlCommandTargetFunctionName {
     my $namespaces = $ENV{namespaces};
-    my @nf = $_[0];
-    my @nfuuid = $_[1];
+    my ($nfs, $nfuuids) = @_;
 
-    while (my ($i, $j) = each @nf) {
-        if ($j =~ $ARGV[1]) {
-            my $kubecommand = "kubectl exec -n " . $namespaces . " -it " . $nfuuid[$i] . " -- /bin/sh";
+    foreach my $nfuuid (@$nfuuids) {
+        if (!($nfuuid =~ $ARGV[1])) {
+            next;
+        }
+
+        else {
+            my $kubecommand = "kubectl exec -n " . $namespaces . " -it " . $nfuuid . " -- /bin/sh";
             system($kubecommand);
             last;
         }
@@ -487,7 +499,7 @@ sub processForTcpdump {
         }
 
         elsif (grep {$_ =~ $ARGV[1]} @nfuuid) {
-            executeForTcpdumpKubectlCommandTargetFunctionName(@nf, @nfuuid);
+            executeForTcpdumpKubectlCommandTargetFunctionName(\@nf, \@nfuuid);
         }
     }
 
@@ -501,20 +513,33 @@ sub executeForTcpdumpKubectlCommandTargetNumber {
     my $namespaces = $ENV{namespaces};
     my @nfuuid = @_;
 
-    my $kubecommand = "kubectl exec -n " . $namespaces . " -it " . $nfuuid[$ARGV[1]] . " -c tcpdump -- /bin/bash";
-    system($kubecommand);
+    if ($nfuuid[$ARGV[1]] =~ /mongodb/) {
+        print STDERR "does not support tcpdump\n";
+    }
 
+    else {
+        my $kubecommand = "kubectl exec -n " . $namespaces . " -it " . $nfuuid[$ARGV[1]] . " -c tcpdump -- /bin/bash";
+        system($kubecommand);
+    }
 }
 
 # --------------------------------------------------
 sub executeForTcpdumpKubectlCommandTargetFunctionName {
     my $namespaces = $ENV{namespaces};
-    my @nf = $_[0];
-    my @nfuuid = $_[1];
+    my ($nfs, $nfuuids) = @_;
 
-    while (my ($i, $j) = each @nf) {
-        if ($j =~ $ARGV[1]) {
-            my $kubecommand = "kubectl exec -n " . $namespaces . " -it " . $nfuuid[$i] . " -c tcpdump -- /bin/bash";
+    foreach my $nfuuid (@$nfuuids) {
+        if (!($nfuuid =~ $ARGV[1])) {
+            next;
+        }
+
+        elsif ($nfuuid =~ /mongodb/) {
+            print STDERR "does not support tcpdump\n";
+            last;
+        }
+
+        else {
+            my $kubecommand = "kubectl exec -n " . $namespaces . " -it " . $nfuuid . " -c tcpdump -- /bin/bash";
             system($kubecommand);
             last;
         }
@@ -663,12 +688,25 @@ sub executeForMongodbKubectlCommandMongoCli {
 
 }
 
-
 # ==================================================
 # Completion part
 # ==================================================
 # --------------------------------------------------
 sub processForCompletion() {
+
+    my $DEVELOPER_FLAG = $ENV{RESOURCECTL_DEVELOPER};
+
+    unless (defined $DEVELOPER_FLAG) {
+        displayNormalCompletion();
+    }
+
+    else {
+        displayDeveloperCompletion();
+    }
+}
+
+# --------------------------------------------------
+sub displayNormalCompletion() {
     print "_resourcectl_completion(){\n";
     print "\n";
     print "    local cur prev cword\n";
@@ -688,8 +726,202 @@ sub processForCompletion() {
     print "            args=\"list dump stop get POD_NUM POD_NAME\"\n";
     print "        fi\n";
     print "    fi\n";
+    print "\n";
     print "    COMPREPLY=( \$(compgen -W \"\$args\" -- \${cur}) );\n";
     print "}\n";
     print "\n";
     print "complete -F _resourcectl_completion resourcectl\n";
 }
+
+# --------------------------------------------------
+sub displayDeveloperCompletion() {
+    print "_resourcectl_completion(){\n";
+    print "\n";
+    print "    local cur prev cword\n";
+    print "    _get_comp_words_by_ref -n : cur prev cword\n";
+    print "    args=\"\"\n";
+    print "\n";
+    print "    if [ \${cword} -eq 1 ];then\n";
+    print "        args=\"node pods tcpdump mongodb ueransim log completion\"\n";
+    print "    fi\n";
+    print "\n";
+    print "    if [ \${cword} -eq 2 ]; then\n";
+    print "        if [ \${prev} = \"node\" ]; then\n";
+    print "            args=\"list NODE_NUM\"\n";
+    print "        elif [ \${prev} = \"pods\" ]; then\n";
+    print "            args=\"list deploy clear POD_NUM POD_NAME\"\n";
+    print "        elif [ \${prev} = \"tcpdump\" ]; then\n";
+    print "            args=\"list dump stop get POD_NUM POD_NAME\"\n";
+    print "        elif [ \${prev} = \"mongodb\" ]; then\n";
+    print "            args=\"register shell mongocli\"\n";
+    print "        elif [ \${prev} = \"ueransim\" ]; then\n";
+    print "            args=\"ue gnb\"\n";
+    print "        elif [ \${prev} = \"log\" ]; then\n";
+    print "            args=\"POD_NUM POD_NAME\"\n";
+    print "        fi\n";
+    print "    fi\n";
+    print "\n";
+    print "    if [ \${cword} -eq 3 ]; then\n";
+    print "        if [ \${prev} = \"ue\" ]; then\n";
+    print "            args=\"start status shell info dump\"\n";
+    print "        elif [ \${prev} = \"gnb\" ]; then\n";
+    print "            args=\"status shell dump info amf-list ue-list\"\n";
+    print "        fi\n";
+    print "    fi\n";
+    print "\n";
+    print "    COMPREPLY=( \$(compgen -W \"\$args\" -- \${cur}) );\n";
+    print "}\n";
+    print "\n";
+    print "complete -F _resourcectl_completion resourcectl\n";
+}
+
+# ==================================================
+# ueransim part
+# ==================================================
+# --------------------------------------------------
+sub processForUeransim() {
+
+    if (!(defined($ARGV[1]))) {
+        displayMongodbHelp();
+    }
+
+    elsif ($ARGV[1] =~ "ue") {
+        processForUeransimFunctionUe();
+    }
+
+    elsif ($ARGV[1] =~ "gnb") {
+        processForUeransimFunctionGnb();
+    }
+
+    else {
+        displayMongodbHelp();
+    }
+}
+
+# --------------------------------------------------
+sub processForUeransimFunctionUe() {
+    my $namespaces = $ENV{namespaces};
+    my $nfuuid = "";
+    my $uecommand = "";
+
+    getUeransimInformation("ue", \$nfuuid);
+
+    if (!(defined($ARGV[2]))) {
+        displayMongodbHelp();
+    }
+
+    elsif ($ARGV[2] =~ "start") {
+        $uecommand = "./build/nr-ue -c ./config/free5gc-ue.yaml &";
+    }
+
+    elsif ($ARGV[2] =~ "dump") {
+        $uecommand = "./build/nr-cli --dump";
+    }
+
+    elsif ($ARGV[2] =~ "info") {
+        $uecommand = "./build/nr-cli imsi-208930000000003 --exec \"info\"";
+    }
+
+    elsif ($ARGV[2] =~ "status") {
+        $uecommand = "./build/nr-cli imsi-208930000000003 --exec \"status\"";
+    }
+
+    elsif ($ARGV[2] =~ "shell") {
+        $uecommand = "/bin/bash";
+    }
+
+    else {
+        displayMongodbHelp();
+    }
+
+    if (!($uecommand eq "")) {
+        my $kubecommand = "kubectl exec -n " . $namespaces . " -it " . $nfuuid . " -c f5gc-ue -- $uecommand";
+        system($kubecommand);
+    }
+}
+
+# --------------------------------------------------
+sub getUeransimInformation {
+    my $namespaces = $ENV{namespaces};
+    my $nf = $_[0];
+    my $nfuuid = $_[1];
+
+    unless (defined $namespaces) {
+        print STDERR "Load the rc file and define the environment variable namespaces.\n";
+        exit(0);
+    }
+
+    if ($namespaces ne "f5gc" && $namespaces ne "open5gs") {
+        print STDERR "Unexpected namespaces have been defined in the environment variables.\n";
+        exit(0);
+    }
+
+    my $kubecommand = `kubectl get pods -n $namespaces 2> /dev/null`;
+    my @lines = split (/[\n\r]/, $kubecommand);
+    my $flag = "0";
+
+    foreach my $line (@lines) {
+        if ($line =~ $nf) {
+            $line =~ s/\s+[0-9]\/[0-9].*//;
+            $$nfuuid = $line;
+            $flag = "0";
+            last;
+        }
+
+        else {
+            $flag = "1";
+        }
+    }
+
+    if ($flag eq "1") {
+        print STDERR "The Pod has not been deployed.\n";
+        exit(0);
+    }
+}
+
+# --------------------------------------------------
+sub processForUeransimFunctionGnb() {
+    my $namespaces = $ENV{namespaces};
+    my $nfuuid = "";
+    my $uecommand = "";
+
+    getUeransimInformation("gnb", \$nfuuid);
+
+    if (!(defined($ARGV[2]))) {
+        displayMongodbHelp();
+    }
+
+    elsif ($ARGV[2] =~ "dump") {
+        $uecommand = "./build/nr-cli --dump";
+    }
+
+    elsif ($ARGV[2] =~ "info") {
+        $uecommand = "./build/nr-cli UERANSIM-gnb-208-93-16 --exec \"info\"";
+    }
+
+    elsif ($ARGV[2] =~ "status") {
+        $uecommand = "./build/nr-cli UERANSIM-gnb-208-93-16 --exec \"status\"";
+    }
+
+    elsif ($ARGV[2] =~ "amf-list") {
+        $uecommand = "./build/nr-cli UERANSIM-gnb-208-93-16 --exec \"amf-list\"";
+    }
+
+    elsif ($ARGV[2] =~ "ue-list") {
+        $uecommand = "./build/nr-cli UERANSIM-gnb-208-93-16 --exec \"ue-list\"";
+    }
+
+    elsif ($ARGV[2] =~ "shell") {
+        $uecommand = "/bin/bash";
+    }
+    else {
+        displayMongodbHelp();
+    }
+
+    if (!($uecommand eq "")) {
+        my $kubecommand = "kubectl exec -n " . $namespaces . " -it " . $nfuuid . " -c f5gc-gnb -- $uecommand";
+        system($kubecommand);
+    }
+}
+
+# --------------------------------------------------
