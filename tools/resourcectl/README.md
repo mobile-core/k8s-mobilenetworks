@@ -140,14 +140,14 @@ Options:
 $ 
 ```
 
-`start`を指定することでコンテナ内のシェル`tcpdump.sh`を起動することができます。
+`dump`を指定することでコンテナ内のシェル`tcpdump.sh`を起動することができます。
 
 `tcpdump.sh`はコンテナ内のifを対象にキャプチャを取得することができます。
 
 ターゲットはデプロイされている全てのコンテナです。
 
 ```bash
-$ resourcectl tcpdump start
+$ resourcectl tcpdump dump
 ```
 
 `stop`をしているすることでコンテナ内のシェル`tcpdump.sh`を停止することができます。

@@ -22,7 +22,7 @@ spec:
       labels:
         app: f5gc-upf
       annotations:
-        k8s.v1.cni.cncf.io/networks: f5gc-upf-n3, f5gc-upf-n4, f5gc-upf-n6
+        k8s.v1.cni.cncf.io/networks: f5gc-upf-n3, f5gc-upf-n4, f5gc-upf-n6-n9
     spec:
       securityContext:
         runAsUser: 0
