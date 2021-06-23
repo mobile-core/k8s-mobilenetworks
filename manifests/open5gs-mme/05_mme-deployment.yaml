@@ -16,7 +16,7 @@ spec:
       labels:
         app: open5gs-mme
       annotations:
-        k8s.v1.cni.cncf.io/networks: open5gs-mme-s1mme-s6a, open5gs-mme-11
+        k8s.v1.cni.cncf.io/networks: open5gs-s1mme-s6a, open5gs-mme-s11
     spec:
       securityContext:
         runAsUser: 0
