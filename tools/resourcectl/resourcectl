@@ -159,7 +159,7 @@ sub getNetworkFunctionList {
     }
 
     elsif ($namespaces eq "open5gs") {
-        return ("pcrf", "pgw", "sgw", "mme", "enb", "ue");
+        return ("mongodb", "hss", "pcrf", "pgw", "sgw", "mme", "enb", "ue");
     }
 
     else {
