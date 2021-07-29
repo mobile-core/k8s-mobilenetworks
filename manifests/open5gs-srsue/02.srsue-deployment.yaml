@@ -46,11 +46,11 @@ spec:
             privileged: true
             capabilities:
               add: ["NET_ADMIN", "SYS_TIME"]
-          volumeMounts:
-            - name: open5gs-srsue-config
-              mountPath: /gnbsim/config/
-            - mountPath: /dev/net/tun
-              name: tun-devdir
+#          volumeMounts:
+#            - name: open5gs-srsue-config
+#              mountPath: /gnbsim/config/
+#            - mountPath: /dev/net/tun
+#              name: tun-devdir
           ports:
             - containerPort: 38412
               name: if-n1n2
