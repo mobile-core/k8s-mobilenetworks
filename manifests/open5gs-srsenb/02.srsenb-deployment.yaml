@@ -29,10 +29,10 @@ spec:
           privileged: true
         command: ["/bin/bash", "-c"]
         args: ["./build/nr-srsenb -c ./config/open5gs-srsenb.yaml"]
-        volumeMounts:
-        - name: gnb-conf
-          mountPath: /UERANSIM/config/open5gs-srsenb.yaml
-          subPath: open5gs-srsenb.yaml
+#        volumeMounts:
+#        - name: srsran-demo
+#          mountPath: /srsenb/src/srsenb/
+#          subPath: open5gs-srsenb.yaml
         ports:
           - containerPort: 38412
             name: if-n1n2
