@@ -2,11 +2,15 @@
 # -*- coding: utf-8 -*
 
 """
-    Script : mrshark.py
+    Script Name: mrshark.py
+    Script Summary: kubectlコマンドを実行してpodsIp, serviceIpを取得し、
+                Wireshark用hostsファイルを作成する
 
-
-
+    Author: Moe Kobayashi
+    Change History: 2021.09.06... 初版
+                2021.09.07... 微修正
 """
+
 
 # -------------------------------------------------- #
 # 標準モジュール
@@ -22,52 +26,48 @@ import re
 # cmdlineOptions
 # -------------------------------------------------- #
 # ツール実行時のオプション一覧
-# f5gc, open5gcどちらかを指定し、次の関数に渡す。
+# f5gc, open5gcどちらかを指定し、次の関数に渡す
 # -------------------------------------------------- #
 
 def cmdlineOptions():
-    version = "1.0"
+    version = "1.1"
     args = sys.argv
 
-    if "-h" in args or "-help" in args:
+    if "-h" in args or "--help" in args:
         print("")
         print("Usage:")
-        print("    python3 mrbob.py [-free5gc] [-open5gs] [-version] [-help]")
+        print("    python3 mrshark.py [--free5gc] [--open5gs] [--version] [--help]")
         print("")
         print("Optional arguments:")
         print("")
-        print("    -f, -f5gc        set the variable 'namespaces' to the string 'f5gc'")
-        print("    -o, -open5gs     set the variable 'namespaces' to the string 'open5gs'")
-        print("    -v, -version     show version information and exit")
-        print("    -h, -help        show this help message and exit")
+        print("    -f, --f5gc        set the variable 'namespaces' to the string 'f5gc'")
+        print("    -o, --open5gs     set the variable 'namespaces' to the string 'open5gs'")
+        print("    -v, --version     show version information and exit")
+        print("    -h, --help        show this help message and exit")
         print("")
         print("Note:")
-        print("No need to give any arguments if you have already defined the 'namespaces.'")
+        print("No need to give any arguments if you have already defined the namespaces.")
         print("")
         sys.exit()
 
-    elif "-v" in args or "-version" in args:
+    elif "-v" in args or "--version" in args:
         print("This is Mr.Shark ver.{}".format(version))
         sys.exit()
 
-    elif "-f" in args or "-f5gc" in args:
+    elif "-f" in args or "--f5gc" in args:
         os.environ["namespaces"] = "f5gc"
         print("Create hosts file with f5gc!")
 
-        loadNameSpaces()
-
-    elif "-o" in args  or "-open5gs" in args:
+    elif "-o" in args  or "--open5gs" in args:
         os.environ["namespaces"] = "open5gs"
         print("Create hosts file with open5gs!")
-
-        loadNameSpaces()
 
 
 # -------------------------------------------------- #
 # loadNameSpaces
 # -------------------------------------------------- #
-# rcファイルを読み込み、$namespacesを取得します。
-# f5gc, open5gc以外の場合はプログラムを終了します。
+# Namespacesが設定されているかチェックする
+# f5gc, open5gc以外の場合はプログラムを終了する
 # -------------------------------------------------- #
 
 def loadNameSpaces():
@@ -76,53 +76,36 @@ def loadNameSpaces():
         ns = os.environ["namespaces"]
     else:
         print("")
-        print("You didn't define the 'namespaces.'")
-        print("Please run this script again with arguments or read variables with following commands:")
+        print("You didn't define the namespaces.")
+        print("Please run this script again with options or read variables with following commands:")
         print("")
         print("    if you want the file with f5gc -> $ source ~/.k8sfivegrc")
         print("    if you want the file with open5gs -> $ source ~/.k8sfourgrc")
         print("")
         sys.exit()
-    # print(ns)
-    # f5gc
 
-    if ns == "f5gc":
+    if ns == "f5gc" or ns == "open5gs":
         return ns
-    elif ns == "open5gs":
-        return ns
+
+    # f5gc, open5gs以外のnamespacesが設定されている場合はエラー出力
     else:
+        print("This namespaces is unavailable!")
         sys.exit()
 
 
 # -------------------------------------------------- #
-# execKubectlServicesCommand
+# execKubectlCommand
 # -------------------------------------------------- #
-# kubectl get servicesコマンドを実行します。
-# コマンド実行が失敗した場合はエラーを出力します。
+# kubectl get service/podsコマンドを実行する
+# コマンド実行が失敗した場合はエラーを出力する
 # -------------------------------------------------- #
 
-def execKubectlServicesCommand(ns):
+def execKubectlCommand(ns, r):
     try:
-        cmd_service = subprocess.check_output(["kubectl", "get", "services", "-n", ns, "-o", "wide"], stderr=subprocess.STDOUT)
-        # print(cmd_service.decode())
-        return cmd_service
-    except subprocess.CalledProcessError:
-        print("kubectl failed!", file=sys.stderr)
-        sys.exit(1)
-
-
-# -------------------------------------------------- #
-# execKubectlPodsCommand
-# -------------------------------------------------- #
-# kubectl get podsコマンドを実行します。
-# コマンド実行が失敗した場合はエラーを出力します。
-# -------------------------------------------------- #
-
-def execKubectlPodsCommand(ns):
-    try:
-        cmd_pods = subprocess.check_output(["kubectl", "get", "pods", "-n", ns, "-o", "wide"], stderr=subprocess.STDOUT)
-    # print(cmd_pods.decode())
-        return cmd_pods
+        cmd_response = subprocess.check_output(["kubectl", "get", r, "-n", ns, "-o", "wide"], stderr=subprocess.STDOUT)
+        # print(cmd_response.decode())
+        return cmd_response
+    
     except subprocess.CalledProcessError:
         print("kubectl failed!", file=sys.stderr)
         sys.exit(1)
@@ -131,24 +114,28 @@ def execKubectlPodsCommand(ns):
 # -------------------------------------------------- #
 # parserCommandOutput
 # -------------------------------------------------- #
-# kubectlコマンドの取得結果をパースし、変数に格納します。
+# kubectlコマンドの取得結果をパースし、変数に格納する
 # -------------------------------------------------- #
 
 def parserServiceIp(cmd_service):
 
-    # 配列の14個目までを削除し、要素が7個ずつのリストに区切る
-    # f5gc-amfはIPがないので飛ばす
+    # 配列の7個目までを削除し、要素が7個ずつのリストに区切る
     list = cmd_service.decode().split()
-    lists = [list[i:i + 7] for i in range(14, len(list), 7)]
+    lists = [list[i:i + 7] for i in range(7, len(list), 7)]
 
     # output serviceip list
     serviceip = []
     for i in lists:
-        dict = {"address": i[2],
-                    "name": i[0]+"-service"
-                    }
+        #IPがない場合はSkip (e.g. f5gc-amf)
+        if i[2] == "None":
+            continue
+
+        dict = {
+                "address": i[2],
+                "name": i[0]+"-service"
+        }
         serviceip.append(dict)
-    # print(serviceip)
+        # print(serviceip)
 
     return serviceip
 
@@ -158,15 +145,14 @@ def parserPodsIp(cmd_pods):
     ## 配列の11個目までを削除し、要素が9個ずつのリストに区切る
     list = cmd_pods.decode().split()
     lists = [list[i:i + 9] for i in range(11, len(list), 9)]
-
     
-
     ## output podsIp list
     podsip = []
     for i in lists:
-        dict = {"address": i[5],
+        dict = {
+                "address": i[5],
                 "name": str(re.search("f5gc-[a-z]*", i[0]).group())+"-pod"
-                }
+        }
         podsip.append(dict)
     # print(podsIp)
 
@@ -176,7 +162,7 @@ def parserPodsIp(cmd_pods):
 # -------------------------------------------------- #
 # nsBranching
 # -------------------------------------------------- #
-# 取得したNamespacesに該当するmultusIpを取得します。
+# 取得したNamespacesに該当するmultusIpを取得する
 # -------------------------------------------------- #
 
 def nsBranching(ns):
@@ -229,7 +215,7 @@ def nsBranching(ns):
 # -------------------------------------------------- #
 # makeHostsFile
 # -------------------------------------------------- #
-# 変数に格納した各IPアドレスをhostsファイルに出力します。
+# 変数に格納した各IPアドレスをhostsファイルに出力する
 # -------------------------------------------------- #
 
 def makeHostsFile(ns, multusip, serviceip, podsip):
@@ -238,17 +224,17 @@ def makeHostsFile(ns, multusip, serviceip, podsip):
         print("; multus ip", file=f)   
         for i in multusip:
             print(i["address"],"", i["name"], file=f)
-        print("")
+        print("", file=f)
         print("; service ip", file=f)
         print("; kubectl get services -n ", ns, "-o wide", file=f)
         for i in serviceip:
             print(i["address"],"", i["name"], file=f)
-        print("")
+        print("", file=f)
         print("; pod ip", file=f)
         print("; kubectl get pods -n", ns, "-o wide", file=f)
         for i in podsip:
             print(i["address"],"", i["name"], file=f)
-        print("")
+        print("", file=f)
         
 
 # -------------------------------------------------- #
@@ -259,18 +245,18 @@ def main():
 
     cmdlineOptions()
     
-    # namespaces取得
+    # namespacesを取得
     ns = loadNameSpaces()
 
     # kubectlコマンドを実行
-    cmd_service = execKubectlServicesCommand(ns)
-    cmd_pods = execKubectlPodsCommand(ns)
+    cmd_service = execKubectlCommand(ns, "service")
+    cmd_pods = execKubectlCommand(ns, "pods")
 
     # Parse
     serviceip = parserServiceIp(cmd_service)
     podsip = parserPodsIp(cmd_pods)
 
-    # multusIp取得
+    # multusIpを取得
     multusip = nsBranching(ns)
 
     # hostsファイルを出力
