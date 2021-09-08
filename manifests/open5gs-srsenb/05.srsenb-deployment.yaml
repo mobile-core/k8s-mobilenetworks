@@ -32,6 +32,10 @@ spec:
         command: 
           - /bin/sleep
           - infinity
+        volumeMounts:
+        - name: srsenb-conf
+          mountPath: /etc/srsran
+          subPath: enb.conf
         ports:
           - containerPort: 38412
             name: if-s1-mme
@@ -50,10 +54,10 @@ spec:
       schedulerName: default-scheduler
       serviceAccountName: open5gs-srsenb-sa
       terminationGracePeriodSeconds: 30
-#      volumes:
-#      - name: srsenb-conf
-#        configMap:
-#         name: srsenb-configmap
-#          items: 
-#          - key: open5gs-srsenb.yaml
-#            path: open5gs-srsenb.yaml
+      volumes:
+      - name: srsenb-conf
+        configMap:
+         name: srsenb-configmap
+          items: 
+          - key: enb.conf
+            path: enb.conf
