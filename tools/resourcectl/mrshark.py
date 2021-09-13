@@ -9,6 +9,8 @@
     Author: Moe Kobayashi
     Change History: 2021.09.06... 初版
                 2021.09.07... 微修正
+                2021.09.09... cmdlineOptionsにデフォルト引数を指定、
+                    無効なオプション指定時の動作を追加
 """
 
 
@@ -29,11 +31,15 @@ import re
 # f5gc, open5gcどちらかを指定し、次の関数に渡す
 # -------------------------------------------------- #
 
-def cmdlineOptions():
-    version = "1.1"
-    args = sys.argv
+def cmdlineOptions(args = sys.argv):
+    version = "1.2"
+    # args = sys.argv
 
-    if "-h" in args or "--help" in args:
+    # オプションがない場合は何もしない
+    if len(args) == 1:
+        return
+
+    elif "-h" in args or "--help" in args:
         print("")
         print("Usage:")
         print("    python3 mrshark.py [--free5gc] [--open5gs] [--version] [--help]")
@@ -61,6 +67,11 @@ def cmdlineOptions():
     elif "-o" in args  or "--open5gs" in args:
         os.environ["namespaces"] = "open5gs"
         print("Create hosts file with open5gs!")
+
+    # 無効なオプションのが指定された場合はエラー出力
+    else:
+        print("This args is not exists!")
+        sys.exit(0)
 
 
 # -------------------------------------------------- #
@@ -142,11 +153,11 @@ def parserServiceIp(cmd_service):
 
 def parserPodsIp(cmd_pods):
 
-    ## 配列の11個目までを削除し、要素が9個ずつのリストに区切る
+    # 配列の11個目までを削除し、要素が9個ずつのリストに区切る
     list = cmd_pods.decode().split()
     lists = [list[i:i + 9] for i in range(11, len(list), 9)]
     
-    ## output podsIp list
+    # output podsIp list
     podsip = []
     for i in lists:
         dict = {
