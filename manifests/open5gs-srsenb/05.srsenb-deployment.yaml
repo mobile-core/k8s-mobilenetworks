@@ -24,7 +24,7 @@ spec:
       containers:
       - name: open5gs-srsenb
         imagePullPolicy: IfNotPresent
-        image: shubhamtatvamasi/srsran-demo
+        image: mobilecore/srsran
         securityContext:
           privileged: true
           capabilities:
