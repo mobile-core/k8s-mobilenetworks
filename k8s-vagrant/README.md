@@ -11,10 +11,16 @@
 ## 構築の概要
 次の2段階で構築
 * kubernetes環境のベースとなるVM(vagrant BOX)を作成し、vagrant環境にBOXとして登録
-* 1.のBOXを利用し、Master Node x1, Worker Node x2 を作成
+* 1.のBOXを利用し、Master Node x1, Worker Node x2 , Robot Framework Node x1 を作成
 
 ## 下準備
+下記GitHubのURLにブラウザでアクセスする。
+https://github.com/mobile-core/k8s-mobilenetworks/
+
+"Code"ボタンからzipファイルをダウンロード、zipファイルを解凍。
 各自PCの適当な場所に保存、解凍。
+
+Gitがインストール済みの環境であれば、git cloneコマンドでダウンロードでも可能。
 `git clone https://github.com/mobile-core/k8s-mobilenetworks.git/k8s-vagrant`
 
 
@@ -28,11 +34,15 @@ PowerShell起動。解凍、設置したVagrantフォルダ > k8s-baseフォル�
 
 `cd (設置したフォルダ)\k8s-vagrant\k8s-base`
 
+vagrantに必要なプラグインをインストール 
+
+`vagrant plugin install vagrant-reload` 
+
 vagrant up。VM起動、自動設定。
 
 `vagrant up`
 
-VM起動、自動設定が完了したら、Virtual box Guest Additionをインストールするため、一旦VMシャットダウン。
+VM起動、自動設定が完了したら、Boxとしてvagrant環境に登録するため、一旦VMシャットダウン。 
 
 `vagrant halt`
 
@@ -53,7 +63,7 @@ Boxに登録
 `vagrant box add k8s-base package.box`
 
 
-## 2. 1.のBOXを利用し、Master Node x1, Worker Node x2 を作成
+## 2. 1.のBOXを利用し、Master Node x1, Worker Node x2, RobotFramework Node x1 を作成
 解凍、設置したVagrantフォルダ > k8sフォルダ へ移動
 
 `cd (設置したフォルダ)\k8s-vagrant\k8s`
