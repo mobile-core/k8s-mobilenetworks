@@ -5,12 +5,13 @@
     Script Name: mrshark.py
     Script Summary: kubectlコマンドを実行してpodsIp, serviceIpを取得し、
                 Wireshark用hostsファイルを作成する
-
     Author: Moe Kobayashi
     Change History: 2021.09.06... 初版
                 2021.09.07... 微修正
                 2021.09.09... cmdlineOptionsにデフォルト引数を指定、
                     無効なオプション指定時の動作を追加
+                2021.09.29... execKubectlCommandに、
+                    リソースがない場合のエラー処理動作を追加
 """
 
 
@@ -32,8 +33,7 @@ import re
 # -------------------------------------------------- #
 
 def cmdlineOptions(args = sys.argv):
-    version = "1.2"
-    # args = sys.argv
+    version = "1.3"
 
     # オプションがない場合は何もしない
     if len(args) == 1:
@@ -68,7 +68,7 @@ def cmdlineOptions(args = sys.argv):
         os.environ["namespaces"] = "open5gs"
         print("Create hosts file with open5gs!")
 
-    # 無効なオプションのが指定された場合はエラー出力
+    # 無効なオプションが指定された場合はエラー出力
     else:
         print("This args is not exists!")
         sys.exit(0)
@@ -114,11 +114,18 @@ def loadNameSpaces():
 def execKubectlCommand(ns, r):
     try:
         cmd_response = subprocess.check_output(["kubectl", "get", r, "-n", ns, "-o", "wide"], stderr=subprocess.STDOUT)
-        # print(cmd_response.decode())
+        
+        if "No resources found in" in str(cmd_response):
+            raise ValueError("ERROR! No resources found in " + ns + " namespaces.")
+
         return cmd_response
     
     except subprocess.CalledProcessError:
         print("kubectl failed!", file=sys.stderr)
+        sys.exit(1)
+
+    except ValueError as e:
+        print(e)
         sys.exit(1)
 
 
@@ -146,7 +153,6 @@ def parserServiceIp(cmd_service):
                 "name": i[0]+"-service"
         }
         serviceip.append(dict)
-        # print(serviceip)
 
     return serviceip
 
@@ -157,7 +163,7 @@ def parserPodsIp(cmd_pods):
     list = cmd_pods.decode().split()
     lists = [list[i:i + 9] for i in range(11, len(list), 9)]
     
-    # output podsIp list
+    # output podsip list
     podsip = []
     for i in lists:
         dict = {
@@ -165,7 +171,6 @@ def parserPodsIp(cmd_pods):
                 "name": str(re.search("f5gc-[a-z]*", i[0]).group())+"-pod"
         }
         podsip.append(dict)
-    # print(podsIp)
 
     return podsip
 
