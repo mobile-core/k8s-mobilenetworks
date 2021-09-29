@@ -1,0 +1,49 @@
+;=====================================================================
+; 接続情報
+HOSTADDR = '127.0.0.1'
+USERNAME = 'vagrant'
+KEYFILE  = '%HOMEPATH%\.vagrant.d\boxes\k8s-base\0\virtualbox\vagrant_private_key'
+;=====================================================================
+; 接続先の入力 -> PORT番号を設定
+strdim hostarray 4
+hostarray[0] = 'master port:2222'
+hostarray[1] = 'node1 port:2200'
+hostarray[2] = 'node2 port:2201'
+hostarray[3] = 'robot port:2202'
+
+listbox '接続先を選んでください' '接続先選択' hostarray
+
+; resultを待避
+n = result
+if n == -1 then
+    messagebox 'キャンセルしました' 'キャンセルしました'
+    end
+elseif n == 0 then
+    PORT = '2222'
+elseif n == 1 then
+    PORT = '2200'
+elseif n == 2 then
+    PORT = '2201'
+elseif n == 3 then
+    PORT = '2202'
+endif
+;=====================================================================
+
+; 処理ディレクトリを現在ディレクトリに変更
+getdir DIR
+setdir DIR
+
+; コマンドオプション組立て
+COMMAND = HOSTADDR
+strconcat COMMAND ':'
+strconcat COMMAND PORT
+strconcat COMMAND ' /ssh /2 /auth=publickey /user='
+strconcat COMMAND USERNAME
+strconcat COMMAND ' /keyfile='
+expandenv KEYFILE
+strconcat COMMAND KEYFILE
+
+; 接続
+connect COMMAND
+
+end
