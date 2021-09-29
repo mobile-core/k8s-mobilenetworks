@@ -16,7 +16,7 @@ spec:
       labels:
         app: open5gs-srsenb
       annotations:
-        k8s.v1.cni.cncf.io/networks: open5gs-srsenb
+        k8s.v1.cni.cncf.io/networks: open5gs-srsenb-s1ap, open5gs-srsenb-s1u
     spec:
       securityContext:
         runAsUser: 0
@@ -30,14 +30,14 @@ spec:
           capabilities:
            add: ["SYS_NICE"]
         command: 
-          - /bin/sleep
-          - infinity
+          - srsenb
+          - enb.conf
         volumeMounts:
         - name: srsenb-conf
           mountPath: /etc/srsran
           subPath: enb.conf
         ports:
-          - containerPort: 38412
+          - containerPort: 36412
             name: if-s1-mme
             protocol: SCTP
           - containerPort: 2152
@@ -58,6 +58,3 @@ spec:
       - name: srsenb-conf
         configMap:
          name: srsenb-configmap
-          items: 
-          - key: enb.conf
-            path: enb.conf
