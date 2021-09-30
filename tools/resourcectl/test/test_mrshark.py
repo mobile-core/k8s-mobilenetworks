@@ -84,9 +84,9 @@ class TestMrshark(unittest.TestCase):
         for key, val in dict.items():
             result = mrshark.cmdlineOptions(key)
             self.assertEqual(val, os.environ["namespaces"])
-        self.separator()
                 
-        # Error Case
+
+    def test_cmdline_options_err(self):
         with self.assertRaises(SystemExit):
             mrshark.cmdlineOptions("-a")
 
