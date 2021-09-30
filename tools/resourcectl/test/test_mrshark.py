@@ -25,79 +25,31 @@ f5gc-gnb-7cdb85bf67-v2x5q     2/2     Running   20         12d   10.244.104.47  
 class TestMrshark(unittest.TestCase):
 
     #sample values
-    sample_cmd_service = "NAME           TYPE        CLUSTER-IP       EXTERNAL-IP   \
-            PORT(S)                AGE   SELECTOR f5gc-amf       ClusterIP   \
-            None             <none>        29518/TCP,38412/SCTP   56d   app=f5gc-amf \
-            f5gc-gnb       ClusterIP   10.107.248.30    <none>        \
-            38412/SCTP,2152/UDP    56d   app=f5gc-gnb"\
-            .encode("utf-8")
-
-    sample_cmd_pods = "NAME                          READY   STATUS    RESTARTS   AGE   \
-            IP               NODE    NOMINATED NODE   READINESS GATES \
-            f5gc-amf-67c4cdbbb7-6vt8g     2/2     Running   20         12d   \
-            10.244.104.49    node2   <none>           <none> f5gc-gnb-7cdb85bf67-v2x5q     \
-            2/2     Running   20         12d   10.244.104.47    node2   <none>           <none>"\
-            .encode("utf-8")
+    sample_cmd_service = global_cmd_service
+    sample_cmd_pods = global_cmd_pods
 
     sample_serviceip = [
-        {
-            "address": "10.107.248.30", 
-            "name": "f5gc-gnb-service"
-        }
+        {"address": "10.107.248.30", "name": "f5gc-gnb-service"}
     ]
 
     sample_podsip = [
-        {
-            "address": "10.244.104.49",
-            "name": "f5gc-amf-pod"
-        },
-        {
-            "address": "10.244.104.47",
-            "name": "f5gc-gnb-pod"
-        }
+        {"address": "10.244.104.49", "name": "f5gc-amf-pod"},
+        {"address": "10.244.104.47", "name": "f5gc-gnb-pod"}
     ]
 
     multusip_f5gc = [
-        {
-            "address": "172.16.10.11",
-            "name": "f5gc-ue-multus-n1n2"
-        },
-        {
-            "address": "172.16.10.10",
-            "name": "f5gc-gnb-multus-n1n2"
-        },
-        {
-            "address": "192.168.10.10",
-            "name": "f5gc-gnb-multus-n3"
-        },
-        {
-            "address": "172.16.10.20",
-            "name": "f5gc-amf-multus-n1n2"
-        },
-        {
-            "address": "172.16.30.20",
-            "name": "f5gc-smf-multus-n4"
-        },
-        {
-            "address": "192.168.10.20",   
-            "name": "f5gc-upf-multus-n3"
-        },
-        {
-            "address": "172.16.30.30",
-            "name": "f5gc-upf-multus-n4"
-        },
-        {
-            "address": "192.168.30.31",
-            "name": "f5gc-upf-multus-n9"
-        },
-        {
-            "address": "10.96.0.10",
-            "name": "kube-system-coredns"
-        }
+        {"address": "172.16.10.11",  "name": "f5gc-ue-multus-n1n2"},
+        {"address": "172.16.10.10",  "name": "f5gc-gnb-multus-n1n2"},
+        {"address": "192.168.10.10", "name": "f5gc-gnb-multus-n3"},
+        {"address": "172.16.10.20",  "name": "f5gc-amf-multus-n1n2"},
+        {"address": "172.16.30.20",  "name": "f5gc-smf-multus-n4"},
+        {"address": "192.168.10.20", "name": "f5gc-upf-multus-n3"},
+        {"address": "172.16.30.30",  "name": "f5gc-upf-multus-n4"},
+        {"address": "192.168.30.31", "name": "f5gc-upf-multus-n9"},
+        {"address": "10.96.0.10",    "name": "kube-system-coredns"}
     ]
 
     multusip_open5gs = []
-
     ns = ["f5gc", "open5gs", "aaa"]
 
 
