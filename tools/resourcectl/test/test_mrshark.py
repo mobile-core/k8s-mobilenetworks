@@ -92,25 +92,25 @@ class TestMrshark(unittest.TestCase):
 
 
     def test_load_namespaces(self):
-        # Error Case1
-        # namespacesが未定義
+        for i in range(0, len(self.ns)-1):
+            os.environ["namespaces"] = self.ns[i]
+            self.assertEqual(mrshark.loadNameSpaces(), self.ns[i]) 
+
+
+    def test_load_namespaces_err(self):
+        # namespacesが未定義の場合
         with self.assertRaises(SystemExit):
             mrshark.loadNameSpaces()
 
-        #Normal Case, Error Case2
-        #namespacesがf5gc, open5gs, 想定外の値
-        for j, name in enumerate(self.ns):
-            os.environ["namespaces"] = name
-            try:
-                self.assertEqual(mrshark.loadNameSpaces(), name)
-            except:
-                with self.assertRaises(SystemExit):
-                    mrshark.loadNameSpaces()
+        # namespacesが想定外の値の場合
+        os.environ["namespaces"] = self.ns[2]
+        with self.assertRaises(SystemExit):
+            mrshark.loadNameSpaces()
 
 
     def test_exec_kubectl_command(self):
-            self.assertEqual(type(mrshark.execKubectlCommand(self.ns[0], "service")), bytes)
-            self.assertEqual(type(mrshark.execKubectlCommand(self.ns[0], "pods")), bytes)
+        self.assertEqual(type(mrshark.execKubectlCommand(self.ns[0], "service")), bytes)
+        self.assertEqual(type(mrshark.execKubectlCommand(self.ns[0], "pods")), bytes)
 
 
     def test_exec_kubectl_command_err(self):
