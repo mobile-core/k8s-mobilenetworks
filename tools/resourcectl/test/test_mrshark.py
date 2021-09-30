@@ -153,7 +153,7 @@ class TestMrshark(unittest.TestCase):
         with self.assertRaises(PermissionError):
             mrshark.makeHostsFile("f5gc", self.multusip_f5gc, self.sample_serviceip, self.sample_podsip)
         
-        os.chmod("./", 0o755)
+        os.chmod("./hosts", 0o755)
         os.remove('./hosts')
 
 
@@ -164,6 +164,12 @@ class TestMrshark(unittest.TestCase):
         podsip = mrshark.parserPodsIp(cmd_pods)
         multusip = mrshark.nsBranching("f5gc")
         self.assertIsNone(mrshark.makeHostsFile("f5gc", multusip, serviceip, podsip))
-
-        # 削除しないと、Error Case実行時にエラーが発生してしまう為
         os.remove('./hosts')
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+    
+# 実行時
+# python3 -m unittest test_mrshark -v
