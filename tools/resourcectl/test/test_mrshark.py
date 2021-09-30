@@ -77,15 +77,13 @@ class TestMrshark(unittest.TestCase):
 
         # namespacesを指定するオプションたち
         dict = {
-                    "-f": "f5gc",
-                    "--f5gc": "f5gc",
-                    "-o": "open5gs",
-                    "--open5gs": "open5gs"
-                }
+            "-f":        "f5gc",
+            "--f5gc":    "f5gc",
+            "-o":        "open5gs",
+            "--open5gs": "open5gs"
+        }
         for key, val in dict.items():
             result = mrshark.cmdlineOptions(key)
-            # if result is None:
-                # return val
             self.assertEqual(val, os.environ["namespaces"])
         self.separator()
                 
