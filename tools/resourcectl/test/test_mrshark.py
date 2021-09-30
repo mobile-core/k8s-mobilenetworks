@@ -3,7 +3,6 @@
 
 
 import unittest
-import difflib
 import os
 import sys
 import mrshark
@@ -138,31 +137,24 @@ class TestMrshark(unittest.TestCase):
 
 
     def test_make_hostsfile(self):
-        # Error Case
-        # 書き込み権限がないので作成不可
-        os.chmod("./", 0o555)
-        with self.assertRaises(PermissionError):
-            mrshark.makeHostsFile("f5gc", self.multusip_f5gc, self.sample_serviceip, self.sample_podsip)
-        
-        os.chmod("./", 0o755)
-
-        # Normal Case
         mrshark.makeHostsFile("f5gc", self.multusip_f5gc, self.sample_serviceip, self.sample_podsip)
-        
+
         #作成済みのhostsdiffと差分比較
         with open("./hosts", mode="r") as hosts, \
             open("./hostsdiff", mode="r") as hostsdiff:
-            
+
             content1 = hosts.readlines()
             content2 = hostsdiff.readlines()
             self.assertEqual(content1, content2)
 
-            # 削除しないと、Error Case実行時にエラーが発生してしまう為
-            os.remove('./hosts')
-
-            # 差分表示用
-            # diff = difflib.Differ().compare(hosts.readlines(), hostsdiff.readlines())
-            # print(diff)
+        # Error Case
+        # 書き込み権限がないので作成不可
+        os.chmod("./hosts", 0o555)
+        with self.assertRaises(PermissionError):
+            mrshark.makeHostsFile("f5gc", self.multusip_f5gc, self.sample_serviceip, self.sample_podsip)
+        
+        os.chmod("./", 0o755)
+        os.remove('./hosts')
 
 
     def test_total(self):
