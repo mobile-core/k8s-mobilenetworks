@@ -109,15 +109,15 @@ class TestMrshark(unittest.TestCase):
 
 
     def test_exec_kubectl_command(self):
-        for i in range(0, len(self.ns), 1):
-            self.assertEqual(type(mrshark.execKubectlCommand(self.ns[i], "service")), bytes)
-            self.assertEqual(type(mrshark.execKubectlCommand(self.ns[i], "pods")), bytes)
+            self.assertEqual(type(mrshark.execKubectlCommand(self.ns[0], "service")), bytes)
+            self.assertEqual(type(mrshark.execKubectlCommand(self.ns[0], "pods")), bytes)
 
-        # Error Case
+
+    def test_exec_kubectl_command_err(self):
         with self.assertRaises(SystemExit):
             for i in range(0, len(self.ns), 1):
                 mrshark.execKubectlCommand(self.ns[i], "aaa")
-                mrshark.execKubectlCommand("aaa", "pods")
+            mrshark.execKubectlCommand("aaa", "pods")
 
 
     def test_parser_serviceip(self):
