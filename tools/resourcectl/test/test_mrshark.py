@@ -146,14 +146,15 @@ class TestMrshark(unittest.TestCase):
             content2 = hostsdiff.readlines()
             self.assertEqual(content1, content2)
 
-        # Error Case
+
+    def test_make_hostsfile_err(self):
         # 書き込み権限がないので作成不可
         os.chmod("./hosts", 0o555)
         with self.assertRaises(PermissionError):
             mrshark.makeHostsFile("f5gc", self.multusip_f5gc, self.sample_serviceip, self.sample_podsip)
         
         os.chmod("./hosts", 0o755)
-        os.remove('./hosts')
+        os.remove("./hosts")
 
 
     def test_total(self):
@@ -163,7 +164,7 @@ class TestMrshark(unittest.TestCase):
         podsip = mrshark.parserPodsIp(cmd_pods)
         multusip = mrshark.nsBranching("f5gc")
         self.assertIsNone(mrshark.makeHostsFile("f5gc", multusip, serviceip, podsip))
-        os.remove('./hosts')
+        os.remove("./hosts")
 
 
 if __name__ == "__main__":
