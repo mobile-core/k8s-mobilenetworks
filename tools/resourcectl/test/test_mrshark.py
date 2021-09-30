@@ -103,7 +103,6 @@ class TestMrshark(unittest.TestCase):
             os.environ["namespaces"] = name
             try:
                 self.assertEqual(mrshark.loadNameSpaces(), name)
-                # print(mrshark.loadNameSpaces())
             except:
                 with self.assertRaises(SystemExit):
                     mrshark.loadNameSpaces()
