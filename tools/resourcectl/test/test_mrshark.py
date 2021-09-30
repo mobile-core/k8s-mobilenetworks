@@ -126,22 +126,10 @@ class TestMrshark(unittest.TestCase):
         result = mrshark.parserServiceIp(self.sample_cmd_service)
         self.assertEqual(result, self.sample_serviceip)
 
-        # Error Case
-        # pods, service等のリソースがない場合
-        with self.assertRaises(Exception) as context:
-            mrshark.parserServiceIp("cmd_service")
-        self.assertFalse("No resources found in" in str(context.exception))
-
 
     def test_parser_podsip(self):
         result = mrshark.parserPodsIp(self.sample_cmd_pods)
         self.assertEqual(result, self.sample_podsip)
-
-        # Error Case
-        # pods, service等のリソースがない場合
-        with self.assertRaises(Exception) as context:
-            mrshark.parserPodsIp("cmd_pods")
-        self.assertFalse("No resources found in" in str(context.exception))
 
 
     def test_ns_branching(self):
