@@ -30,11 +30,11 @@ spec:
           capabilities:
            add: ["SYS_NICE"]
         command: 
-          - srsenb
-          - enb.conf
+          - /bin/sleep
+          - infinity
         volumeMounts:
         - name: srsenb-conf
-          mountPath: /etc/srsran
+          mountPath: /srslte/enb.conf
           subPath: enb.conf
         ports:
           - containerPort: 36412
