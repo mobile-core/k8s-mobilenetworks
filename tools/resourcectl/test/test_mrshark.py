@@ -54,18 +54,17 @@ class TestMrshark(unittest.TestCase):
 
 
     def setUp(self):
-        print("setUp")
+        pass
 
 
     def tearDown(self):
-        print(os.environ.pop("namespaces", "namespaces is cleared"))
-        print("tearDown\n")
+        os.environ.pop("namespaces", None)
         self.separator()
 
 
     # テスト実行結果の表示用区切り線
     def separator(self):
-        print("----------"*6)
+        print("\n" + ("-"*60))
 
 
     def test_cmdline_options(self):
