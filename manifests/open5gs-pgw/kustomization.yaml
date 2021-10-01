@@ -1,9 +1,0 @@
-resources:
-  - 00_pgw-sa.yaml
-  - 01_pgw-rbac.yaml
-  - 02_pgw-configmap.yaml
-  - 03_pgw-service.yaml
-  - 04_pgw-multus.yaml
-  - 05_pgw-deployment.yaml
-
-namespace: open5gs

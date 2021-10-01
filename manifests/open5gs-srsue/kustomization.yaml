@@ -1,9 +1,0 @@
-resources:
- - 00_ue-sa.yaml
- - 01_ue-rbac.yaml
-#  - 02_ue-configmap.yaml
- - 03_ue-service.yaml
- - 04_ue-multus.yaml
- - 05_ue-deployment.yaml
-
-namespace: open5gs
