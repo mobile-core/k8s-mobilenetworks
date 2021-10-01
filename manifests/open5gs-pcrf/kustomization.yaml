@@ -1,9 +1,0 @@
-resources:
-  - 00_pcrf-sa.yaml
-  - 01_pcrf-rbac.yaml
-  - 02_pcrf-configmap.yaml
-  - 03_pcrf-service.yaml
-  - 04_pcrf-multus.yaml
-  - 05_pcrf-deployment.yaml
-
-namespace: open5gs

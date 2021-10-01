@@ -1,9 +1,0 @@
-resources:
-  - 00_sgw-sa.yaml
-  - 01_sgw-rbac.yaml
-  - 02_sgw-configmap.yaml
-  - 03_sgw-service.yaml
-  - 04_sgw-multus.yaml
-  - 05_sgw-deployment.yaml
-
-namespace: open5gs
