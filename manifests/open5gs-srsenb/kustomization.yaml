@@ -1,8 +1,0 @@
-resources:
- - 00.srsenb-sa.yaml
- - 01.srsenb-rbac.yaml
- - 02.srsenb-service.yaml
- - 03.srsenb-multus.yaml
- - 04.srsenb-deployment.yaml
- 
-namespace: open5gs
