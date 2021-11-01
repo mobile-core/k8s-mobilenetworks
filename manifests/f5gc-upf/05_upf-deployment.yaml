@@ -29,18 +29,23 @@ spec:
         runAsGroup: 0
       containers:
         - name: f5gc-upf
-          image: mobilecore/free5gc-upf:3.0.4
+          image: mobilecore/free5gc-upf:3.0.4-1
           imagePullPolicy: IfNotPresent
-          # imagePullPolicy: Always
+          command: ["/bin/bash", "-c"]
+          args:
+            - /sbin/sysctl -w net.ipv4.ip_forward=1;
+              iptables -t nat -vL;
+              iptables -t nat -A POSTROUTING -s 172.16.1.0/24 ! -o net3 -j MASQUERADE;
+              /free5gc/free5gc-upfd/free5gc-upfd -f /free5gc/config/upfcfg.yaml;
           securityContext:
-            privileged: false
+            privileged: true
             capabilities:
-              add: ["NET_ADMIN", "NET_RAW", "NET_BIND_SERVICE", "SYS_TIME"]
+              add: ["NET_ADMIN"]
           volumeMounts:
             - name: f5gc-upf-config
               mountPath: /free5gc/config
-            - mountPath: /dev/net/tun
-              name: tun-devdir
+            - name: tun-devdir
+              mountPath: /dev/net/tun
           ports:
             - containerPort: 2152
               name: if-n3

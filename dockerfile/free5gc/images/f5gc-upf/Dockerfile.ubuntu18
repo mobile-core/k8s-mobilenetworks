@@ -1,4 +1,4 @@
-FROM ghcr.io/sumichaaan/free5gc-k8s/f5gc-build-base:v3.0.4 AS builder
+FROM docker.io/mobilecore/free5gc-build-base:3.0.4 AS builder
 FROM ubuntu:18.04
 
 LABEL description="Free5GC open source 5G Core Network" \
@@ -14,7 +14,7 @@ RUN if [ "$DEBUG_TOOLS" = "true" ] ; then apt-get update && apt-get install -y v
 
 # Install UPF dependencies
 RUN apt-get update \
-    && apt-get install -y libmnl0 libyaml-0-2 iproute2 \
+    && apt-get install -y libmnl0 libyaml-0-2 iproute2 iptables \
     && apt-get clean
 
 # Set working dir

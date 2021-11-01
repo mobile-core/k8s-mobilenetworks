@@ -1,39 +1,37 @@
 # Makefile
-F5GC_BASE_NAME           ?= f5gc-build-base
-F5GC_GNBSIM_NAME         ?= f5gc-gnbsim
-F5GC_AMF_NAME            ?= f5gc-amf
-F5GC_SMF_NAME            ?= f5gc-smf
-F5GC_UPF_NAME            ?= f5gc-upf
-F5GC_NRF_NAME		 ?= f5gc-nrf
-F5GC_AUSF_NAME           ?= f5gc-ausf
-F5GC_NSSF_NAME           ?= f5gc-nssf
-F5GC_PCF_NAME            ?= f5gc-pcf
-F5GC_UDM_NAME            ?= f5gc-udm
-F5GC_UDR_NAME            ?= f5gc-udr
-F5GC_WEBUI_NAME		 ?= f5gc-webui
+F5GC_BASE_NAME    ?= free5gc-build-base
+F5GC_AMF_NAME     ?= free5gc-amf
+F5GC_SMF_NAME     ?= free5gc-smf
+F5GC_UPF_NAME     ?= free5gc-upf
+F5GC_NRF_NAME     ?= free5gc-nrf
+F5GC_AUSF_NAME    ?= free5gc-ausf
+F5GC_NSSF_NAME    ?= free5gc-nssf
+F5GC_PCF_NAME     ?= free5gc-pcf
+F5GC_UDM_NAME     ?= free5gc-udm
+F5GC_UDR_NAME     ?= free5gc-udr
+F5GC_WEBUI_NAME   ?= free5gc-webui
 
-DOCKER_ENV              ?= DOCKER_BUILDKIT=1
-DOCKER_TAG              ?= v3.0.4
-DOCKER_REGISTRY         ?= docker.io
-DOCKER_REPOSITORY       ?= mobilecore
-DOCKER_BUILD_ARGS       ?= --rm
+DOCKER_ENV        ?= DOCKER_BUILDKIT=1
+DOCKER_TAG        ?= 3.0.4
+DOCKER_REGISTRY   ?= docker.io
+DOCKER_REPOSITORY ?= mobilecore
+DOCKER_BUILD_ARGS ?= --rm
 
-BASE_IMAGE_NAME         ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_BASE_NAME}:${DOCKER_TAG}
-GNBSIM_IMAGE_NAME       ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_GNBSIM_NAME}:${DOCKER_TAG}
-AMF_IMAGE_NAME          ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_AMF_NAME}:${DOCKER_TAG}
-SMF_IMAGE_NAME          ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_SMF_NAME}:${DOCKER_TAG}
-UPF_IMAGE_NAME          ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_UPF_NAME}:${DOCKER_TAG}
-NRF_IMAGE_NAME          ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_NRF_NAME}:${DOCKER_TAG}
-AUSF_IMAGE_NAME         ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_AUSF_NAME}:${DOCKER_TAG}
-NSSF_IMAGE_NAME         ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_NSSF_NAME}:${DOCKER_TAG}
-PCF_IMAGE_NAME          ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_PCF_NAME}:${DOCKER_TAG}
-UDM_IMAGE_NAME          ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_UDM_NAME}:${DOCKER_TAG}
-UDR_IMAGE_NAME          ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_UDR_NAME}:${DOCKER_TAG}
-WEBUI_IMAGE_NAME          ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_WEBUI_NAME}:${DOCKER_TAG}
+BASE_IMAGE_NAME   ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_BASE_NAME}:${DOCKER_TAG}
+AMF_IMAGE_NAME    ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_AMF_NAME}:${DOCKER_TAG}
+SMF_IMAGE_NAME    ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_SMF_NAME}:${DOCKER_TAG}
+UPF_IMAGE_NAME    ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_UPF_NAME}:${DOCKER_TAG}
+NRF_IMAGE_NAME    ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_NRF_NAME}:${DOCKER_TAG}
+AUSF_IMAGE_NAME   ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_AUSF_NAME}:${DOCKER_TAG}
+NSSF_IMAGE_NAME   ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_NSSF_NAME}:${DOCKER_TAG}
+PCF_IMAGE_NAME    ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_PCF_NAME}:${DOCKER_TAG}
+UDM_IMAGE_NAME    ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_UDM_NAME}:${DOCKER_TAG}
+UDR_IMAGE_NAME    ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_UDR_NAME}:${DOCKER_TAG}
+WEBUI_IMAGE_NAME  ?= ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_WEBUI_NAME}:${DOCKER_TAG}
 
 
 
-build-all: build-base build-gnbsim build-amf build-smf build-upf build-nrf build-ausf build-nssf build-pcf build-udm build-udr build-webui
+build-all: build-base build-amf build-smf build-upf build-nrf build-ausf build-nssf build-pcf build-udm build-udr build-webui
 
 
 .PHONY: build-base
@@ -42,17 +40,6 @@ build-base:
 		--tag ${BASE_IMAGE_NAME} \
 		--file ./images/${F5GC_BASE_NAME}/Dockerfile.alpine \
 		./images/${F5GC_BASE_NAME}
-
-.PHONY: build-gnbsim
-build-gnbsim:
-	${DOCKER_ENV} docker build ${DOCKER_BUILD_ARGS} \
-		--tag ${GNBSIM_IMAGE_NAME} \
-		--file ./images/${F5GC_GNBSIM_NAME}/Dockerfile.ubuntu18 \
-		--build-arg REGISTRY=${DOCKER_REGISTRY} \
-		--build-arg REPOSITORY=${DOCKER_REPOSITORY} \
-		--build-arg TAG=${DOCKER_TAG} \
-		--no-cache \
-		./images/${F5GC_GNBSIM_NAME}
 
 .PHONY: build-amf
 build-amf: build-base
@@ -196,7 +183,6 @@ build-webui: build-base
 
 clean:
 	docker rmi ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_BASE_NAME}:${DOCKER_TAG}
-	docker rmi ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_GNBSIM_NAME}:${DOCKER_TAG}
 	docker rmi ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_AMF_NAME}:${DOCKER_TAG}
 	docker rmi ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_SMF_NAME}:${DOCKER_TAG}
 	docker rmi ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}/${F5GC_UPF_NAME}:${DOCKER_TAG}
