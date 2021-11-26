@@ -23,6 +23,7 @@ spec:
         app: f5gc-upf
       annotations:
         k8s.v1.cni.cncf.io/networks: f5gc-upf-n3, f5gc-upf-n4, f5gc-upf-n6-n9
+        cni.projectcalico.org/ipAddrs: "[\"10.244.254.6\"]"
     spec:
       securityContext:
         runAsUser: 0

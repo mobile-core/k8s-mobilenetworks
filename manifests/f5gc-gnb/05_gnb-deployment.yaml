@@ -17,6 +17,7 @@ spec:
         app: f5gc-gnb
       annotations:
         k8s.v1.cni.cncf.io/networks: f5gc-gnb-n1n2, f5gc-gnb-n3
+        cni.projectcalico.org/ipAddrs: "[\"10.244.254.3\"]"
     spec:
       securityContext:
         runAsUser: 0

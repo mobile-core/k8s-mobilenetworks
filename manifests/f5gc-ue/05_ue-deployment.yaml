@@ -30,6 +30,7 @@ spec:
         app: f5gc-ue
       annotations:
         k8s.v1.cni.cncf.io/networks: f5gc-ue-n1n2
+        cni.projectcalico.org/ipAddrs: "[\"10.244.254.2\"]"
     spec:
       securityContext:
         runAsUser: 0
