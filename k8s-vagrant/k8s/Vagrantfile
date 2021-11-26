@@ -35,10 +35,16 @@ $configureMaster = <<-SHELL
   #export KUBECONFIG=/etc/kubernetes/admin.conf
   #kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml
   # Calicoのインストール
+  # https://docs.projectcalico.org/getting-started/kubernetes/self-managed-onprem/onpremises
   export KUBECONFIG=/etc/kubernetes/admin.conf
   # kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
   # kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
-  kubectl apply -f https://docs.projectcalico.org/v3.17/manifests/calico.yaml
+  kubectl apply -f https://docs.projectcalico.org/v3.21/manifests/calico.yaml
+  # calicoctlコマンドのインストール
+  # https://docs.projectcalico.org/getting-started/clis/calicoctl/install
+  curl -o calicoctl -O -L  "https://github.com/projectcalico/calicoctl/releases/download/v3.21.0/calicoctl"
+  mv calicoctl /usr/local/bin/
+  chmod +x /usr/local/bin/calicoctl
 
   # kubectl joinコマンドを保存する
   kubeadm token create --print-join-command > /etc/kubeadm_join_cmd.sh
