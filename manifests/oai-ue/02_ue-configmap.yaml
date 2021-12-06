@@ -1,0 +1,77 @@
+apiVersion: v1
+data:
+  ue.conf: |
+    MCC: '208'
+    MNC: '96'
+    SHORT_IMSI: '0100000001'
+    LTE_KEY: 'fec86ba6eb707ed08905757b1bb44b8f'
+    OPC: 'c42449363bbad02b66d16bc975d77cc1'
+    MSISDN: '001011234561010'
+    HPLMN: 20896
+
+  ue.nfapi.conf: "log_config = {\n  global_log_level                      =\"info\";\n
+    \ global_log_verbosity                  =\"medium\";\n  hw_log_level                          =\"info\";\n
+    \ hw_log_verbosity                      =\"medium\";\n  phy_log_level                         =\"info\";\n
+    \ phy_log_verbosity                     =\"medium\";\n  mac_log_level                         =\"info\";\n
+    \ mac_log_verbosity                     =\"medium\";\n  rlc_log_level                         =\"info\";\n
+    \ rlc_log_verbosity                     =\"medium\";\n  pdcp_log_level                        =\"info\";\n
+    \ pdcp_log_verbosity                    =\"medium\";\n  rrc_log_level                         =\"info\";\n
+    \ rrc_log_verbosity                     =\"full\";\n};\n\n\nL1s = (\n        {\n\tnum_cc
+    = 1;\n\ttr_n_preference = \"nfapi\";\n\tlocal_n_if_name  = \"@UE_NFAPI_IF_NAME@\";\n\tremote_n_address
+    = \"@ENB_IP_ADDRESS@\";\n\tlocal_n_address  = \"@LTE_UE_IP_ADDRESS@\";\n\tlocal_n_portc
+    \   = 50000;\n\tremote_n_portc   = 50001;\n\tlocal_n_portd    = 50010;\n\tremote_n_portd
+    \  = 50011;\n        }  \n);\n\nRUs = (\n    {\n       local_rf       = \"yes\"\n
+    \      nb_tx          = 1\n       nb_rx          = 1\n       att_tx         =
+    90\n       att_rx         = 0;\n       bands          = [7,38,42,43];\n       max_pdschReferenceSignalPower
+    = -27;\n       max_rxgain                    = 125;\n    }\n);\n"
+  ue_usim.conf: |
+    # List of known PLMNS
+    PLMN: {
+        PLMN0: {
+               FULLNAME="OpenAirInterface";
+               SHORTNAME="OAICN";
+               MNC="@MNC@";
+               MCC="@MCC@";
+        };
+    };
+
+    UE0:
+    {
+        USER: {
+            IMEI="356113022094149";
+            MANUFACTURER="OAI";
+            MODEL="LTE SoftModem";
+            PIN="0000";
+        };
+
+        SIM: {
+            MSIN="@SHORT_IMSI@";
+            USIM_API_K="@LTE_KEY@";
+            OPC="@OPC@";
+            MSISDN="@MSISDN@";
+        };
+
+        # Home PLMN Selector with Access Technology
+        HPLMN= "@HPLMN@";
+
+        # User controlled PLMN Selector with Access Technology
+        UCPLMN_LIST = ();
+
+        # Operator PLMN List
+        OPLMN_LIST = ("@HPLMN@");
+
+        # Operator controlled PLMN Selector with Access Technology
+        OCPLMN_LIST = ();
+
+        # Forbidden plmns
+        FPLMN_LIST = ();
+
+        # Equivalent home plmns
+        EHPLMN_LIST = ();
+
+    };
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: oaiue-configmap
+  namespace: open5gs
