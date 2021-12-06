@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oai-enb
+  labels:
+    app: oai-enb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oai-enb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: oai-enb
+      annotations:
+        k8s.v1.cni.cncf.io/networks: oai-enb
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - name: oai-enb
+        imagePullPolicy: IfNotPresent
+        image: oai-enb:develop
+        securityContext:
+          privileged: true
+          capabilities:
+           add: ["SYS_NICE"]
+        command: 
+          - /bin/sleep
+          - infinity
+        volumeMounts:
+        - name: oaienb-conf
+          mountPath: /opt/oai-enb/etc/enb.conf
+          subPath: enb.conf
+        ports:
+          - containerPort: 38412
+            name: if-s1-mme
+            protocol: SCTP
+          - containerPort: 2152
+            name: if-s1u
+            protocol: UDP
+      - name: tcpdump
+        image: mobilecore/tcpdump:latest
+        imagePullPolicy: IfNotPresent
+        command:
+          - /bin/sleep
+          - infinity
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      serviceAccountName: oai-enb-sa
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: oaienb-conf
+        configMap:
+         name: oaienb-configmap
+#          items: 
+#          - key: enb.conf
+#            path: enb.conf

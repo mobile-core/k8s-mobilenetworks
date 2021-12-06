@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: oai-enb
+  name: oai-enb
+spec:
+  type: ClusterIP
+  ports:
+  - name: oaienb
+    port: 38412
+    protocol: SCTP
+    targetPort: 38412
+  selector:
+    app: oai-enb

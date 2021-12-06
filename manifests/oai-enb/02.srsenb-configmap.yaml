@@ -1,0 +1,1060 @@
+apiVersion: v1
+data:
+  enb.conf: |
+            MCC: '208'
+            MNC: '96'
+            MNC_LENGTH: 2
+            TAC: 1
+  cu.fdd.conf: |
+    Active_eNBs = ( "@ENB_NAME@");
+    # Asn1_verbosity, choice in: none, info, annoying
+    Asn1_verbosity = "none";
+
+    eNBs = (
+      {
+        ////////// Identification parameters:
+        eNB_ID    = 0xe00;
+
+        cell_type = "CELL_MACRO_ENB";
+
+        eNB_name  = "@ENB_NAME@";
+
+        // Tracking area code, 0x0000 and 0xfffe are reserved values
+        tracking_area_code = @TAC@;
+        plmn_list = ( { mcc = @MCC@; mnc = @MNC@; mnc_length = @MNC_LENGTH@; } )
+
+        nr_cellid = 12345678L
+
+        tr_s_preference  = "f1"
+
+        local_s_if_name  = "@F1_IF_NAME@";
+        remote_s_address = "@F1_DU_IP_ADDRESS@";
+        local_s_address  = "@F1_CU_IP_ADDRESS@";
+        local_s_portc    = 501;
+        remote_s_portc   = 500;
+        local_s_portd    = 601;
+        remote_s_portd   = 600;
+
+        ////////// Physical parameters:
+
+        component_carriers = (
+          {
+            node_function                           = "3GPP_eNodeB";
+            node_timing                             = "synch_to_ext_device";
+            node_synch_ref                          = 0;
+            frame_type                              = "FDD";
+            tdd_config                              = 3;
+            tdd_config_s                            = 0;
+            prefix_type                             = "NORMAL";
+            eutra_band                              = @UTRA_BAND_ID@;
+            downlink_frequency                      = @DL_FREQUENCY_IN_MHZ@000000L;
+            uplink_frequency_offset                 = -@UL_FREQUENCY_OFFSET_IN_MHZ@000000;
+            Nid_cell                                = @NID_CELL@;
+            N_RB_DL                                 = @NB_PRB@;
+            pbch_repetition                         = "FALSE";
+            prach_root                              = 0;
+            prach_config_index                      = 0;
+            prach_high_speed                        = "DISABLE";
+            prach_zero_correlation                  = 1;
+            prach_freq_offset                       = 2;
+            pucch_delta_shift                       = 1;
+            pucch_nRB_CQI                           = 0;
+            pucch_nCS_AN                            = 0;
+            pucch_n1_AN                             = 0;
+            pdsch_referenceSignalPower              = -25;
+            pdsch_p_b                               = 0;
+            pusch_n_SB                              = 1;
+            pusch_enable64QAM                       = "DISABLE";
+            pusch_hoppingMode                       = "interSubFrame";
+            pusch_hoppingOffset                     = 0;
+            pusch_groupHoppingEnable                = "ENABLE";
+            pusch_groupAssignment                   = 0;
+            pusch_sequenceHoppingEnabled            = "DISABLE";
+            pusch_nDMRS1                            = 1;
+            phich_duration                          = "NORMAL";
+            phich_resource                          = "ONESIXTH";
+            srs_enable                              = "DISABLE";
+            /*
+            srs_BandwidthConfig                     =;
+            srs_SubframeConfig                      =;
+            srs_ackNackST                           =;
+            srs_MaxUpPts                            =;
+            */
+
+            pusch_p0_Nominal                        = -96;
+            pusch_alpha                             = "AL1";
+            pucch_p0_Nominal                        = -104;
+            msg3_delta_Preamble                     = 6;
+            pucch_deltaF_Format1                    = "deltaF2";
+            pucch_deltaF_Format1b                   = "deltaF3";
+            pucch_deltaF_Format2                    = "deltaF0";
+            pucch_deltaF_Format2a                   = "deltaF0";
+            pucch_deltaF_Format2b                   = "deltaF0";
+
+            rach_numberOfRA_Preambles               = 64;
+            rach_preamblesGroupAConfig              = "DISABLE";
+            /*
+            rach_sizeOfRA_PreamblesGroupA           = ;
+            rach_messageSizeGroupA                  = ;
+            rach_messagePowerOffsetGroupB           = ;
+            */
+            rach_powerRampingStep                   = 4;
+            rach_preambleInitialReceivedTargetPower = -108;
+            rach_preambleTransMax                   = 10;
+            rach_raResponseWindowSize               = 10;
+            rach_macContentionResolutionTimer       = 48;
+            rach_maxHARQ_Msg3Tx                     = 4;
+
+            pcch_default_PagingCycle                = 128;
+            pcch_nB                                 = "oneT";
+            bcch_modificationPeriodCoeff= 2;
+            ue_TimersAndConstants_t300              = 1000;
+            ue_TimersAndConstants_t301              = 1000;
+            ue_TimersAndConstants_t310              = 1000;
+            ue_TimersAndConstants_t311              = 10000;
+            ue_TimersAndConstants_n310              = 20;
+            ue_TimersAndConstants_n311              = 1;
+            ue_TransmissionMode                     = 1;
+
+            //Parameters for SIB18
+            rxPool_sc_CP_Len                                       = "normal";
+            rxPool_sc_Period                                       = "sf40";
+            rxPool_data_CP_Len                                     = "normal";
+            rxPool_ResourceConfig_prb_Num                          = 20;
+            rxPool_ResourceConfig_prb_Start                        = 5;
+            rxPool_ResourceConfig_prb_End                          = 44;
+            rxPool_ResourceConfig_offsetIndicator_present          = "prSmall";
+            rxPool_ResourceConfig_offsetIndicator_choice           = 0;
+            rxPool_ResourceConfig_subframeBitmap_present           = "prBs40";
+            rxPool_ResourceConfig_subframeBitmap_choice_bs_buf              = "00000000000000000000";
+            rxPool_ResourceConfig_subframeBitmap_choice_bs_size             = 5;
+            rxPool_ResourceConfig_subframeBitmap_choice_bs_bits_unused      = 0;
+            /*
+            rxPool_dataHoppingConfig_hoppingParameter                       = 0;
+            rxPool_dataHoppingConfig_numSubbands                            = "ns1";
+            rxPool_dataHoppingConfig_rbOffset                               = 0;
+            rxPool_commTxResourceUC-ReqAllowed                              = "TRUE";
+            */
+
+            // Parameters for SIB19
+            discRxPool_cp_Len                                               = "normal"
+            discRxPool_discPeriod                                           = "rf32"
+            discRxPool_numRetx                                              = 1;
+            discRxPool_numRepetition                                        = 2;
+            discRxPool_ResourceConfig_prb_Num                               = 5;
+            discRxPool_ResourceConfig_prb_Start                             = 3;
+            discRxPool_ResourceConfig_prb_End                               = 21;
+            discRxPool_ResourceConfig_offsetIndicator_present               = "prSmall";
+            discRxPool_ResourceConfig_offsetIndicator_choice                = 0;
+            discRxPool_ResourceConfig_subframeBitmap_present                = "prBs40";
+            discRxPool_ResourceConfig_subframeBitmap_choice_bs_buf          = "f0ffffffff";
+            discRxPool_ResourceConfig_subframeBitmap_choice_bs_size         = 5;
+            discRxPool_ResourceConfig_subframeBitmap_choice_bs_bits_unused  = 0;
+          }
+        );
+
+
+        srb1_parameters :
+        {
+          # timer_poll_retransmit = (ms) [5, 10, 15, 20,... 250, 300, 350, ... 500]
+          timer_poll_retransmit    = 80;
+
+          # timer_reordering = (ms) [0,5, ... 100, 110, 120, ... ,200]
+          timer_reordering         = 35;
+
+          # timer_reordering = (ms) [0,5, ... 250, 300, 350, ... ,500]
+          timer_status_prohibit    = 0;
+
+          # poll_pdu = [4, 8, 16, 32 , 64, 128, 256, infinity(>10000)]
+          poll_pdu                 =  4;
+
+          # poll_byte = (kB) [25,50,75,100,125,250,375,500,750,1000,1250,1500,2000,3000,infinity(>10000)]
+          poll_byte                =  99999;
+
+          # max_retx_threshold = [1, 2, 3, 4 , 6, 8, 16, 32]
+          max_retx_threshold       =  4;
+        }
+
+        # ------- SCTP definitions
+        SCTP :
+        {
+          # Number of streams to use in input/output
+          SCTP_INSTREAMS  = 2;
+          SCTP_OUTSTREAMS = 2;
+        };
+
+
+        ////////// MME parameters:
+        mme_ip_address  = (
+          {
+            ipv4       = "@MME_S1C_IP_ADDRESS@";
+            ipv6       = "192:168:30::17";
+            port       = 36412 ;
+            active     = "yes";
+            preference = "ipv4";
+          }
+        );
+
+        NETWORK_INTERFACES : {
+          ENB_INTERFACE_NAME_FOR_S1_MME = "@S1C_IF_NAME@";
+          ENB_IPV4_ADDRESS_FOR_S1_MME   = "@F1_CU_IP_ADDRESS@";
+          ENB_INTERFACE_NAME_FOR_S1U    = "@S1U_IF_NAME@";
+          ENB_IPV4_ADDRESS_FOR_S1U      = "@F1_CU_IP_ADDRESS@";
+          ENB_PORT_FOR_S1U              = 2152; # Spec 2152
+          ENB_IPV4_ADDRESS_FOR_X2C      = "@F1_CU_IP_ADDRESS@";
+          ENB_PORT_FOR_X2C              = 36422; # Spec 36422
+        };
+      }
+    );
+
+    log_config = {
+      global_log_level            = "info";
+      global_log_verbosity        = "medium";
+      pdcp_log_level              = "info";
+      pdcp_log_verbosity          = "high";
+      rrc_log_level               = "info";
+      rrc_log_verbosity           = "medium";
+      flexran_agent_log_level     = "info";
+      flexran_agent_log_verbosity = "medium";
+      gtp_log_level               = "info";
+      gtp_log_verbosity           = "medium";
+    };
+
+    NETWORK_CONTROLLER : {
+      FLEXRAN_ENABLED        = "no";
+      FLEXRAN_INTERFACE_NAME = "lo";
+      FLEXRAN_IPV4_ADDRESS   = "CI_FLEXRAN_CTL_IP_ADDR";
+      FLEXRAN_PORT           = 2210;
+      FLEXRAN_CACHE          = "/mnt/oai_agent_cache";
+      FLEXRAN_AWAIT_RECONF   = "no";
+    };
+  du.fdd.conf: |
+    Active_eNBs = ( "@ENB_NAME@");
+    # Asn1_verbosity, choice in: none, info, annoying
+    Asn1_verbosity = "none";
+
+    eNBs =
+    (
+      {
+        ////////// Identification parameters:
+        eNB_CU_ID = 0xe00;
+
+        eNB_name  = "@ENB_NAME@";
+
+        // Tracking area code, 0x0000 and 0xfffe are reserved values
+        tracking_area_code = @TAC@;
+        plmn_list = ( { mcc = @MCC@; mnc = @MNC@; mnc_length = @MNC_LENGTH@; } )
+
+        nr_cellid = 12345678L
+
+        ////////// Physical parameters:
+
+        component_carriers = (
+          {
+            node_function           = "3GPP_eNODEB";
+            node_timing             = "synch_to_ext_device";
+            node_synch_ref          = 0;
+            frame_type              = "FDD";
+            tdd_config              = 3;
+            tdd_config_s            = 0;
+            prefix_type             = "NORMAL";
+            eutra_band              = @UTRA_BAND_ID@;
+            downlink_frequency      = @DL_FREQUENCY_IN_MHZ@000000L;
+            uplink_frequency_offset = -@UL_FREQUENCY_OFFSET_IN_MHZ@000000;
+            Nid_cell                = @NID_CELL@;
+            N_RB_DL                 = @NB_PRB@;
+            Nid_cell_mbsfn          = @NID_CELL@;
+            nb_antenna_ports        = 1;
+            nb_antennas_tx          = 1;
+            nb_antennas_rx          = 1;
+            tx_gain                 = 90;
+            rx_gain                 = 125;
+
+            pucch_deltaF_Format1    = "deltaF2";
+            pucch_deltaF_Format1b   = "deltaF3";
+            pucch_deltaF_Format2    = "deltaF0";
+            pucch_deltaF_Format2a   = "deltaF0";
+            pucch_deltaF_Format2b   = "deltaF0";
+          }
+        );
+
+
+        # ------- SCTP definitions
+        SCTP :
+        {
+          # Number of streams to use in input/output
+          SCTP_INSTREAMS  = 2;
+          SCTP_OUTSTREAMS = 2;
+        };
+      }
+    );
+
+    MACRLCs = (
+      {
+        num_cc           = 1;
+        tr_s_preference  = "local_L1";
+        tr_n_preference  = "f1";
+        local_n_if_name  = "@F1_IF_NAME@";
+        remote_n_address = "@F1_DU_IP_ADDRESS@";
+        local_n_address  = "@F1_CU_IP_ADDRESS@";
+        local_n_portc    = 500;
+        remote_n_portc   = 501;
+        local_n_portd    = 600;
+        remote_n_portd   = 601;
+      }
+    );
+
+    L1s = (
+      {
+        num_cc = 1;
+        tr_n_preference = "local_mac";
+      }
+    );
+
+    RUs = (
+      {
+        local_rf                      = "yes";
+        nb_tx                         = 1;
+        nb_rx                         = 1;
+        att_tx                        = 10;
+        att_rx                        = 10;
+        bands                         = [7];
+        max_pdschReferenceSignalPower = -25;
+        max_rxgain                    = 125;
+        eNB_instances                 = [0];
+      }
+    );
+
+    log_config = {
+      global_log_level            = "info";
+      global_log_verbosity        = "medium";
+      hw_log_level                = "info";
+      hw_log_verbosity            = "medium";
+      phy_log_level               = "info";
+      phy_log_verbosity           = "medium";
+      mac_log_level               = "info";
+      mac_log_verbosity           = "high";
+      rlc_log_level               = "info";
+      rlc_log_verbosity           = "medium";
+      flexran_agent_log_level     = "info";
+      flexran_agent_log_verbosity = "medium";
+    };
+
+    NETWORK_CONTROLLER : {
+      FLEXRAN_ENABLED        = "no";
+      FLEXRAN_INTERFACE_NAME = "lo";
+      FLEXRAN_IPV4_ADDRESS   = "CI_FLEXRAN_CTL_IP_ADDR";
+      FLEXRAN_PORT           = 2210;
+      FLEXRAN_CACHE          = "/mnt/oai_agent_cache";
+      FLEXRAN_AWAIT_RECONF   = "no";
+    };
+
+    THREAD_STRUCT = (
+      {
+        #three config for level of parallelism "PARALLEL_SINGLE_THREAD", "PARALLEL_RU_L1_SPLIT", or "PARALLEL_RU_L1_TRX_SPLIT"
+        parallel_config    = "@THREAD_PARALLEL_CONFIG@";
+        #        #two option for worker "WORKER_DISABLE" or "WORKER_ENABLE"
+        worker_config      = "WORKER_ENABLE";
+      }
+    );
+  rcc.if4p5.fdd.conf: |
+    Active_eNBs = ( "@ENB_NAME@");
+    # Asn1_verbosity, choice in: none, info, annoying
+    Asn1_verbosity = "none";
+
+    eNBs =
+    (
+     {
+        # real_time choice in {hard, rt-preempt, no}
+        real_time       =  "no";
+
+        ////////// Identification parameters:
+        eNB_ID    =  0xe00;
+
+        cell_type =  "CELL_MACRO_ENB";
+
+        eNB_name  =  "@ENB_NAME@";
+
+        // Tracking area code, 0x0000 and 0xfffe are reserved values
+        tracking_area_code = @TAC@;
+        plmn_list = ( { mcc = @MCC@; mnc = @MNC@; mnc_length = @MNC_LENGTH@; } );
+
+        tr_s_preference     = "local_mac"
+
+        ////////// Physical parameters:
+
+        component_carriers = (
+          {
+          node_function                             = "NGFI_RCC_IF4p5";
+          node_timing                               = "synch_to_ext_device";
+          node_synch_ref                            = 0;
+          frame_type                                = "FDD";
+          tdd_config                                = 3;
+          tdd_config_s                              = 0;
+          prefix_type                               = "NORMAL";
+          eutra_band                                = @UTRA_BAND_ID@;
+          downlink_frequency                        = @DL_FREQUENCY_IN_MHZ@000000L;
+          uplink_frequency_offset                   = -@UL_FREQUENCY_OFFSET_IN_MHZ@000000;
+          Nid_cell                                  = @NID_CELL@;
+          N_RB_DL                                   = @NB_PRB@;
+          Nid_cell_mbsfn                            = @NID_CELL@;
+          nb_antenna_ports                          = 1;
+          nb_antennas_tx                            = 1;
+          nb_antennas_rx                            = 1;
+          tx_gain                                   = 90;
+          rx_gain                                   = 125;
+          pbch_repetition                           = "FALSE";
+          prach_root                                = 0;
+          prach_config_index                        = 0;
+          prach_high_speed                          = "DISABLE";
+          prach_zero_correlation                    = 1;
+          prach_freq_offset                         = 2;
+          pucch_delta_shift                         = 1;
+          pucch_nRB_CQI                             = 0;
+          pucch_nCS_AN                              = 0;
+          pucch_n1_AN                               = 0;
+          pdsch_referenceSignalPower                = -25;
+          pdsch_p_b                                 = 0;
+          pusch_n_SB                                = 1;
+          pusch_enable64QAM                         = "DISABLE";
+          pusch_hoppingMode                         = "interSubFrame";
+          pusch_hoppingOffset                       = 0;
+          pusch_groupHoppingEnabled                 = "ENABLE";
+          pusch_groupAssignment                     = 0;
+          pusch_sequenceHoppingEnabled              = "DISABLE";
+          pusch_nDMRS1                              = 1;
+          phich_duration                            = "NORMAL";
+          phich_resource                            = "ONESIXTH";
+          srs_enable                                = "DISABLE";
+          /*  srs_BandwidthConfig                   =;
+          srs_SubframeConfig                        =;
+          srs_ackNackST                             =;
+          srs_MaxUpPts                              =;*/
+
+          pusch_p0_Nominal                                   = -96;
+          pusch_alpha                                        = "AL1";
+          pucch_p0_Nominal                                   = -104;
+          msg3_delta_Preamble                                = 6;
+          pucch_deltaF_Format1                               = "deltaF2";
+          pucch_deltaF_Format1b                              = "deltaF3";
+          pucch_deltaF_Format2                               = "deltaF0";
+          pucch_deltaF_Format2a                              = "deltaF0";
+          pucch_deltaF_Format2b                              = "deltaF0";
+
+          rach_numberOfRA_Preambles                          = 64;
+          rach_preamblesGroupAConfig                         = "DISABLE";
+          /*
+          rach_sizeOfRA_PreamblesGroupA                      = ;
+          rach_messageSizeGroupA                             = ;
+          rach_messagePowerOffsetGroupB                      = ;
+          */
+          rach_powerRampingStep                              = 4;
+          rach_preambleInitialReceivedTargetPower            = -108;
+          rach_preambleTransMax                              = 10;
+          rach_raResponseWindowSize                          = 10;
+          rach_macContentionResolutionTimer                  = 48;
+          rach_maxHARQ_Msg3Tx                                = 4;
+
+          pcch_default_PagingCycle                           = 128;
+          pcch_nB                                            = "oneT";
+          bcch_modificationPeriodCoeff                       = 2;
+          ue_TimersAndConstants_t300                         = 1000;
+          ue_TimersAndConstants_t301                         = 1000;
+          ue_TimersAndConstants_t310                         = 1000;
+          ue_TimersAndConstants_t311                         = 10000;
+          ue_TimersAndConstants_n310                         = 20;
+          ue_TimersAndConstants_n311                         = 1;
+          ue_TransmissionMode                                = 1;
+
+          //Parameters for SIB18
+          rxPool_sc_CP_Len                                                = "normal";
+          rxPool_sc_Period                                                = "sf40";
+          rxPool_data_CP_Len                                              = "normal";
+          rxPool_ResourceConfig_prb_Num                                   = 20;
+          rxPool_ResourceConfig_prb_Start                                 = 5;
+          rxPool_ResourceConfig_prb_End                                   = 44;
+          rxPool_ResourceConfig_offsetIndicator_present                   = "prSmall";
+          rxPool_ResourceConfig_offsetIndicator_choice                    = 0;
+          rxPool_ResourceConfig_subframeBitmap_present                    = "prBs40";
+          rxPool_ResourceConfig_subframeBitmap_choice_bs_buf              = "00000000000000000000";
+          rxPool_ResourceConfig_subframeBitmap_choice_bs_size             = 5;
+          rxPool_ResourceConfig_subframeBitmap_choice_bs_bits_unused      = 0;
+    /*    rxPool_dataHoppingConfig_hoppingParameter                       = 0;
+          rxPool_dataHoppingConfig_numSubbands                            = "ns1";
+          rxPool_dataHoppingConfig_rbOffset                               = 0;
+          rxPool_commTxResourceUC-ReqAllowed                              = "TRUE";
+    */
+          // Parameters for SIB19
+          discRxPool_cp_Len                                               = "normal"
+          discRxPool_discPeriod                                           = "rf32"
+          discRxPool_numRetx                                              = 1;
+          discRxPool_numRepetition                                        = 2;
+          discRxPool_ResourceConfig_prb_Num                               = 5;
+          discRxPool_ResourceConfig_prb_Start                             = 3;
+          discRxPool_ResourceConfig_prb_End                               = 21;
+          discRxPool_ResourceConfig_offsetIndicator_present               = "prSmall";
+          discRxPool_ResourceConfig_offsetIndicator_choice                = 0;
+          discRxPool_ResourceConfig_subframeBitmap_present                = "prBs40";
+          discRxPool_ResourceConfig_subframeBitmap_choice_bs_buf          = "f0ffffffff";
+          discRxPool_ResourceConfig_subframeBitmap_choice_bs_size         = 5;
+          discRxPool_ResourceConfig_subframeBitmap_choice_bs_bits_unused  = 0;
+
+          }
+        );
+
+
+        srb1_parameters :
+        {
+            # timer_poll_retransmit = (ms) [5, 10, 15, 20,... 250, 300, 350, ... 500]
+            timer_poll_retransmit    = 80;
+
+            # timer_reordering = (ms) [0,5, ... 100, 110, 120, ... ,200]
+            timer_reordering         = 35;
+
+            # timer_reordering = (ms) [0,5, ... 250, 300, 350, ... ,500]
+            timer_status_prohibit    = 0;
+
+            # poll_pdu = [4, 8, 16, 32 , 64, 128, 256, infinity(>10000)]
+            poll_pdu                 =  4;
+
+            # poll_byte = (kB) [25,50,75,100,125,250,375,500,750,1000,1250,1500,2000,3000,infinity(>10000)]
+            poll_byte                =  99999;
+
+            # max_retx_threshold = [1, 2, 3, 4 , 6, 8, 16, 32]
+            max_retx_threshold       =  4;
+        }
+
+        # ------- SCTP definitions
+        SCTP :
+        {
+            # Number of streams to use in input/output
+            SCTP_INSTREAMS  = 2;
+            SCTP_OUTSTREAMS = 2;
+        };
+
+
+        ////////// MME parameters:
+        mme_ip_address      = ( { ipv4       = "@MME_S1C_IP_ADDRESS@";
+                                  ipv6       = "192:168:30::17";
+                                  port       = 36412 ;
+                                  active     = "yes";
+                                  preference = "ipv4";
+                                }
+                              );
+
+        enable_measurement_reports = "no";
+
+        ///X2
+        enable_x2         = "no";
+        t_reloc_prep      = 1000;      /* unit: millisecond */
+        tx2_reloc_overall = 2000;      /* unit: millisecond */
+        t_dc_prep         = 1000;      /* unit: millisecond */
+        t_dc_overall      = 2000;      /* unit: millisecond */
+
+        NETWORK_INTERFACES :
+        {
+            ENB_INTERFACE_NAME_FOR_S1_MME            = "@RCC_IF_NAME@";
+            ENB_IPV4_ADDRESS_FOR_S1_MME              = "@RCC_S1C_IP_ADDRESS@";
+            ENB_INTERFACE_NAME_FOR_S1U               = "@RCC_IF_NAME@";
+            ENB_IPV4_ADDRESS_FOR_S1U                 = "@RCC_IP_ADDRESS@";
+            ENB_PORT_FOR_S1U                         = 2152; # Spec 2152
+            ENB_IPV4_ADDRESS_FOR_X2C                 = "@RCC_IP_ADDRESS@";
+            ENB_PORT_FOR_X2C                         = 36422; # Spec 36422
+        };
+      }
+    );
+
+    MACRLCs = (
+      {
+        num_cc = 1;
+        tr_s_preference = "local_L1";
+        tr_n_preference = "local_RRC";
+        phy_test_mode   = 0;
+        puSch10xSnr     =  160;
+        puCch10xSnr     =  160;
+      }
+    );
+
+    L1s = (
+      {
+        num_cc          = 1;
+        tr_n_preference = "local_mac";
+      }
+    );
+
+    RUs = (
+        {
+            local_if_name  = "@IF4P5_IF_NAME@";
+            remote_address = "@IF4P5_RRU_IP_ADDRESS@";
+            local_address  = "@IF4P5_RCC_IP_ADDRESS@";
+            local_portc    = 50000;
+            remote_portc   = 50000;
+            local_portd    = 50001;
+            remote_portd   = 50001;
+            local_rf       = "no"
+            tr_preference  = "udp_if4p5"
+            nb_tx          = 1
+            nb_rx          = 1
+            att_tx         = 0
+            att_rx         = 0;
+            eNB_instances  = [0];
+        }
+    );
+
+    THREAD_STRUCT = (
+      {
+        #three config for level of parallelism "PARALLEL_SINGLE_THREAD", "PARALLEL_RU_L1_SPLIT", or "PARALLEL_RU_L1_TRX_SPLIT"
+        parallel_config    = "@THREAD_PARALLEL_CONFIG@";
+        #two option for worker "WORKER_DISABLE" or "WORKER_ENABLE"
+        worker_config      = "WORKER_ENABLE";
+      }
+    );
+
+    NETWORK_CONTROLLER :
+    {
+        FLEXRAN_ENABLED        = "no";
+        FLEXRAN_INTERFACE_NAME = "lo";
+        FLEXRAN_IPV4_ADDRESS   = "CI_FLEXRAN_CTL_IP_ADDR";
+        FLEXRAN_PORT           = 2210;
+        FLEXRAN_CACHE          = "/mnt/oai_agent_cache";
+        FLEXRAN_AWAIT_RECONF   = "no";
+    };
+
+    log_config :
+    {
+      global_log_level         ="info";
+      global_log_verbosity     ="medium";
+      hw_log_level             ="info";
+      hw_log_verbosity         ="medium";
+      phy_log_level            ="info";
+      phy_log_verbosity        ="medium";
+      mac_log_level            ="info";
+      mac_log_verbosity        ="high";
+      rlc_log_level            ="info";
+      rlc_log_verbosity        ="medium";
+      pdcp_log_level           ="info";
+      pdcp_log_verbosity       ="medium";
+      rrc_log_level            ="info";
+      rrc_log_verbosity        ="medium";
+    };
+  rcc.if4p5.tdd.conf: |
+    Active_eNBs = ( "@ENB_NAME@");
+    # Asn1_verbosity, choice in: none, info, annoying
+    Asn1_verbosity = "none";
+
+    eNBs =
+    (
+     {
+        # real_time choice in {hard, rt-preempt, no}
+        real_time       =  "no";
+
+        ////////// Identification parameters:
+        eNB_ID    =  0xe00;
+
+        cell_type =  "CELL_MACRO_ENB";
+
+        eNB_name  =  "@ENB_NAME@";
+
+        // Tracking area code, 0x0000 and 0xfffe are reserved values
+        tracking_area_code = @TAC@;
+        plmn_list = ( { mcc = @MCC@; mnc = @MNC@; mnc_length = @MNC_LENGTH@; } );
+
+        ////////// Physical parameters:
+
+        component_carriers = (
+          {
+            node_function                             = "NGFI_RCC_IF4p5";
+            node_timing                               = "synch_to_ext_device";
+            node_synch_ref                            = 0;
+            frame_type                                = "TDD";
+            tdd_config                                = 1;
+            tdd_config_s                              = 0;
+            prefix_type                               = "NORMAL";
+            eutra_band                                = @UTRA_BAND_ID@;
+            downlink_frequency                        = @DL_FREQUENCY_IN_MHZ@000000L;
+            uplink_frequency_offset                   = @UL_FREQUENCY_OFFSET_IN_MHZ@000000;
+            Nid_cell                                  = @NID_CELL@;
+            N_RB_DL                                   = @NB_PRB@;
+            Nid_cell_mbsfn                            = @NID_CELL@;
+            nb_antenna_ports                          = 1;
+            nb_antennas_tx                            = 1;
+            nb_antennas_rx                            = 1;
+            tx_gain                                   = 90;
+            rx_gain                                   = 125;
+            prach_root                                = 0;
+            prach_config_index                        = 0;
+            prach_high_speed                          = "DISABLE";
+            prach_zero_correlation                    = 1;
+            prach_freq_offset                         = 2;
+            pucch_delta_shift                         = 1;
+            pucch_nRB_CQI                             = 1;
+            pucch_nCS_AN                              = 0;
+            pucch_n1_AN                               = 0;
+            pdsch_referenceSignalPower                =-27;
+            pdsch_p_b                                 = 0;
+            pusch_n_SB                                = 1;
+            pusch_enable64QAM                         = "DISABLE";
+            pusch_hoppingMode                         = "interSubFrame";
+            pusch_hoppingOffset                       = 0;
+            pusch_groupHoppingEnabled                 = "ENABLE";
+            pusch_groupAssignment                     = 0;
+            pusch_sequenceHoppingEnabled              = "DISABLE";
+            pusch_nDMRS1                              = 1;
+            phich_duration                            = "NORMAL";
+            phich_resource                            = "ONESIXTH";
+            srs_enable                                = "DISABLE";
+          /*  srs_BandwidthConfig                     =;
+            srs_SubframeConfig                        =;
+            srs_ackNackST                             =;
+            srs_MaxUpPts                              =;*/
+
+            pusch_p0_Nominal                                   = -96;
+            pusch_alpha                                        = "AL1";
+            pucch_p0_Nominal                                   = -106;
+            msg3_delta_Preamble                                = 6;
+            pucch_deltaF_Format1                               = "deltaF2";
+            pucch_deltaF_Format1b                              = "deltaF3";
+            pucch_deltaF_Format2                               = "deltaF0";
+            pucch_deltaF_Format2a                              = "deltaF0";
+            pucch_deltaF_Format2b                              = "deltaF0";
+
+            rach_numberOfRA_Preambles                          = 64;
+            rach_preamblesGroupAConfig                         = "DISABLE";
+          /*
+            rach_sizeOfRA_PreamblesGroupA                      = ;
+            rach_messageSizeGroupA                             = ;
+            rach_messagePowerOffsetGroupB                      = ;
+          */
+            rach_powerRampingStep                              = 4;
+            rach_preambleInitialReceivedTargetPower            = -108;
+            rach_preambleTransMax                              = 10;
+            rach_raResponseWindowSize                          = 10;
+            rach_macContentionResolutionTimer                  = 48;
+            rach_maxHARQ_Msg3Tx                                = 4;
+
+            pcch_default_PagingCycle                    = 128;
+            pcch_nB                                     = "oneT";
+            bcch_modificationPeriodCoeff                = 2;
+            ue_TimersAndConstants_t300                  = 1000;
+            ue_TimersAndConstants_t301                  = 1000;
+            ue_TimersAndConstants_t310                  = 1000;
+            ue_TimersAndConstants_t311                  = 10000;
+            ue_TimersAndConstants_n310                  = 20;
+            ue_TimersAndConstants_n311                  = 1;
+
+            ue_TransmissionMode                         = 1;
+          }
+        );
+
+
+        srb1_parameters :
+        {
+            # timer_poll_retransmit = (ms) [5, 10, 15, 20,... 250, 300, 350, ... 500]
+            timer_poll_retransmit    = 80;
+
+            # timer_reordering = (ms) [0,5, ... 100, 110, 120, ... ,200]
+            timer_reordering         = 35;
+
+            # timer_reordering = (ms) [0,5, ... 250, 300, 350, ... ,500]
+            timer_status_prohibit    = 0;
+
+            # poll_pdu = [4, 8, 16, 32 , 64, 128, 256, infinity(>10000)]
+            poll_pdu                 =  4;
+
+            # poll_byte = (kB) [25,50,75,100,125,250,375,500,750,1000,1250,1500,2000,3000,infinity(>10000)]
+            poll_byte                =  99999;
+
+            # max_retx_threshold = [1, 2, 3, 4 , 6, 8, 16, 32]
+            max_retx_threshold       =  4;
+        }
+
+        # ------- SCTP definitions
+        SCTP :
+        {
+            # Number of streams to use in input/output
+            SCTP_INSTREAMS  = 2;
+            SCTP_OUTSTREAMS = 2;
+        };
+
+        ////////// MME parameters:
+        mme_ip_address      = ( { ipv4       = "@MME_S1C_IP_ADDRESS@";
+                                  ipv6       = "192:168:30::17";
+                                  port       = 36412 ;
+                                  active     = "yes";
+                                  preference = "ipv4";
+                                }
+                              );
+
+        enable_measurement_reports = "no";
+
+        ///X2
+        enable_x2         = "no";
+        t_reloc_prep      = 1000;      /* unit: millisecond */
+        tx2_reloc_overall = 2000;      /* unit: millisecond */
+        t_dc_prep         = 1000;      /* unit: millisecond */
+        t_dc_overall      = 2000;      /* unit: millisecond */
+
+        NETWORK_INTERFACES :
+        {
+            ENB_INTERFACE_NAME_FOR_S1_MME            = "@RCC_IF_NAME@";
+            ENB_IPV4_ADDRESS_FOR_S1_MME              = "@RCC_S1C_IP_ADDRESS@";
+            ENB_INTERFACE_NAME_FOR_S1U               = "@RCC_IF_NAME@";
+            ENB_IPV4_ADDRESS_FOR_S1U                 = "@RCC_IP_ADDRESS@";
+            ENB_PORT_FOR_S1U                         = 2152; # Spec 2152
+            ENB_IPV4_ADDRESS_FOR_X2C                 = "@RCC_IP_ADDRESS@";
+            ENB_PORT_FOR_X2C                         = 36422; # Spec 36422
+        };
+
+        log_config :
+        {
+          global_log_level                      ="debug";
+          global_log_verbosity                  ="medium";
+          hw_log_level                          ="info";
+          hw_log_verbosity                      ="medium";
+          phy_log_level                         ="info";
+          phy_log_verbosity                     ="medium";
+          mac_log_level                         ="info";
+          mac_log_verbosity                     ="high";
+          rlc_log_level                         ="info";
+          rlc_log_verbosity                     ="medium";
+          pdcp_log_level                        ="info";
+          pdcp_log_verbosity                    ="medium";
+          rrc_log_level                         ="info";
+          rrc_log_verbosity                     ="medium";
+       };
+
+      }
+    );
+    MACRLCs = (
+      {
+        num_cc          = 1;
+        tr_s_preference = "local_L1";
+        tr_n_preference = "local_RRC";
+        scheduler_mode  = "fairRR";
+        puSch10xSnr     =  200;
+        puCch10xSnr     =  200;
+      }
+    );
+
+    L1s = (
+      {
+        num_cc          = 1;
+        tr_n_preference = "local_mac";
+      }
+    );
+
+    RUs = (
+      {
+        local_if_name  = "@IF4P5_IF_NAME@";
+        remote_address = "@IF4P5_RRU_IP_ADDRESS@";
+        local_address  = "@IF4P5_RCC_IP_ADDRESS@";
+        local_portc    = 50000;
+        remote_portc   = 50000;
+        local_portd    = 50001;
+        remote_portd   = 50001;
+        local_rf       = "no"
+        tr_preference  = "udp_if4p5"
+        nb_tx          = 1
+        nb_rx          = 1
+        att_tx         = 0
+        att_rx         = 0;
+        eNB_instances  = [0];
+      }
+    );
+
+    THREAD_STRUCT = (
+      {
+        #three config for level of parallelism "PARALLEL_SINGLE_THREAD", "PARALLEL_RU_L1_SPLIT", or "PARALLEL_RU_L1_TRX_SPLIT"
+        parallel_config    = "@THREAD_PARALLEL_CONFIG@";
+        #two option for worker "WORKER_DISABLE" or "WORKER_ENABLE"
+        worker_config      = "WORKER_ENABLE";
+      }
+    );
+
+    NETWORK_CONTROLLER :
+    {
+        FLEXRAN_ENABLED        = "no";
+        FLEXRAN_INTERFACE_NAME = "lo";
+        FLEXRAN_IPV4_ADDRESS   = "CI_FLEXRAN_CTL_IP_ADDR";
+        FLEXRAN_PORT           = 2210;
+        FLEXRAN_CACHE          = "/mnt/oai_agent_cache";
+        FLEXRAN_AWAIT_RECONF   = "no";
+    };
+  rcc.nfapi.fdd.conf: "Active_eNBs = ( \"@ENB_NAME@\");\n# Asn1_verbosity, choice
+    in: none, info, annoying\nAsn1_verbosity = \"none\";\n\neNBs =\n(\n {\n    //////////
+    Identification parameters:\n    eNB_ID    =  0xe00;\n\n    cell_type =  \"CELL_MACRO_ENB\";\n\n
+    \   eNB_name  =  \"@ENB_NAME@\";\n\n    // Tracking area code, 0x0000 and 0xfffe
+    are reserved values\n    tracking_area_code = @TAC@;\n\n    plmn_list = ( { mcc
+    = @MCC@; mnc = @MNC@; mnc_length = @MNC_LENGTH@; } );\n\n    tr_s_preference     =
+    \"local_mac\"\n\n    ////////// Physical parameters:\n\n    component_carriers
+    = (\n      {\n      node_function             = \"3GPP_eNODEB\";\n      node_timing
+    \              = \"synch_to_ext_device\";\n      node_synch_ref            = 0;\n
+    \     frame_type\t\t\t\t\t      = \"FDD\";\n      tdd_config \t\t\t\t\t      =
+    3;\n      tdd_config_s            \t\t\t      = 0;\n      prefix_type             \t\t\t
+    \     = \"NORMAL\";\n      eutra_band              \t\t\t      = @UTRA_BAND_ID@;\n
+    \     downlink_frequency      \t\t\t      = @DL_FREQUENCY_IN_MHZ@000000L;\n      uplink_frequency_offset
+    \t\t\t      = -@UL_FREQUENCY_OFFSET_IN_MHZ@000000;\n      Nid_cell\t\t\t\t\t      =
+    @NID_CELL@;\n      N_RB_DL                 \t\t\t      = @NB_PRB@;\n      Nid_cell_mbsfn
+    \         \t\t\t      = @NID_CELL@;\n      nb_antenna_ports                                =
+    1;\n      nb_antennas_tx          \t\t\t      = 1;\n      nb_antennas_rx          \t\t\t
+    \     = 1;\n      tx_gain                                            = 90;\n      rx_gain
+    \                                           = 125;\n      pbch_repetition                                 =
+    \"FALSE\";\n      prach_root              \t\t\t      = 0;\n      prach_config_index
+    \     \t\t\t      = 0;\n      prach_high_speed        \t\t\t      = \"DISABLE\";\n
+    \     prach_zero_correlation  \t\t\t      = 1;\n      prach_freq_offset       \t\t\t
+    \     = 2;\n      pucch_delta_shift       \t\t\t      = 1;\n      pucch_nRB_CQI
+    \          \t\t\t      = 0;\n      pucch_nCS_AN            \t\t\t      = 0;\n
+    \     pucch_n1_AN             \t\t\t      = 0;\n      pdsch_referenceSignalPower
+    \t\t\t      = -27;\n      pdsch_p_b                  \t\t\t      = 0;\n      pusch_n_SB
+    \                \t\t\t      = 1;\n      pusch_enable64QAM          \t\t\t      =
+    \"DISABLE\";\n      pusch_hoppingMode                                  = \"interSubFrame\";\n
+    \     pusch_hoppingOffset                                = 0;\n      pusch_groupHoppingEnabled
+    \ \t\t\t      = \"ENABLE\";\n      pusch_groupAssignment      \t\t\t      = 0;\n
+    \     pusch_sequenceHoppingEnabled\t\t   \t      = \"DISABLE\";\n      pusch_nDMRS1
+    \                                      = 1;\n      phich_duration                                     =
+    \"NORMAL\";\n      phich_resource                                     = \"ONESIXTH\";\n
+    \     srs_enable                                         = \"DISABLE\";\n      /*
+    \ srs_BandwidthConfig                                =;\n      srs_SubframeConfig
+    \                                =;\n      srs_ackNackST                                      =;\n
+    \     srs_MaxUpPts                                       =;*/\n\n      pusch_p0_Nominal
+    \                                  = -96;\n      pusch_alpha                                        =
+    \"AL1\";\n      pucch_p0_Nominal                                   = -104;\n      msg3_delta_Preamble
+    \                               = 6;\n      pucch_deltaF_Format1                               =
+    \"deltaF2\";\n      pucch_deltaF_Format1b                              = \"deltaF3\";\n
+    \     pucch_deltaF_Format2                               = \"deltaF0\";\n      pucch_deltaF_Format2a
+    \                             = \"deltaF0\";\n      pucch_deltaF_Format2b\t\t
+    \   \t      = \"deltaF0\";\n\n      rach_numberOfRA_Preambles                          =
+    64;\n      rach_preamblesGroupAConfig                         = \"DISABLE\";\n
+    \     /*\n      rach_sizeOfRA_PreamblesGroupA                      = ;\n      rach_messageSizeGroupA
+    \                            = ;\n      rach_messagePowerOffsetGroupB                      =
+    ;\n      */\n      rach_powerRampingStep                              = 4;\n      rach_preambleInitialReceivedTargetPower
+    \           = -108;\n      rach_preambleTransMax                              =
+    10;\n      rach_raResponseWindowSize                          = 10;\n      rach_macContentionResolutionTimer
+    \                 = 48;\n      rach_maxHARQ_Msg3Tx                                =
+    4;\n\n      pcch_default_PagingCycle                           = 128;\n      pcch_nB
+    \                                           = \"oneT\";\n      bcch_modificationPeriodCoeff\t\t\t
+    \     = 2;\n      ue_TimersAndConstants_t300\t\t\t      = 1000;\n      ue_TimersAndConstants_t301\t\t\t
+    \     = 1000;\n      ue_TimersAndConstants_t310\t\t\t      = 1000;\n      ue_TimersAndConstants_t311\t\t\t
+    \     = 10000;\n      ue_TimersAndConstants_n310\t\t\t      = 20;\n      ue_TimersAndConstants_n311\t\t\t
+    \     = 1;\n      ue_TransmissionMode                                    = 1;\n\n
+    \     //Parameters for SIB18\n      rxPool_sc_CP_Len                                       =
+    \"normal\";\n      rxPool_sc_Period                                       = \"sf40\";\n
+    \     rxPool_data_CP_Len                                     = \"normal\";\n      rxPool_ResourceConfig_prb_Num
+    \                         = 20;\n      rxPool_ResourceConfig_prb_Start                        =
+    5;\n      rxPool_ResourceConfig_prb_End                          = 44;\n      rxPool_ResourceConfig_offsetIndicator_present
+    \         = \"prSmall\";\n      rxPool_ResourceConfig_offsetIndicator_choice           =
+    0;\n      rxPool_ResourceConfig_subframeBitmap_present           = \"prBs40\";\n
+    \     rxPool_ResourceConfig_subframeBitmap_choice_bs_buf              = \"00000000000000000000\";\n
+    \     rxPool_ResourceConfig_subframeBitmap_choice_bs_size             = 5;\n      rxPool_ResourceConfig_subframeBitmap_choice_bs_bits_unused
+    \     = 0;\n/*    rxPool_dataHoppingConfig_hoppingParameter                       =
+    0;\n      rxPool_dataHoppingConfig_numSubbands                            = \"ns1\";\n
+    \     rxPool_dataHoppingConfig_rbOffset                               = 0;\n      rxPool_commTxResourceUC-ReqAllowed
+    \                             = \"TRUE\";\n*/\n      // Parameters for SIB19\n
+    \     discRxPool_cp_Len                                               = \"normal\"\n
+    \     discRxPool_discPeriod                                           = \"rf32\"\n
+    \     discRxPool_numRetx                                              = 1;\n      discRxPool_numRepetition
+    \                                       = 2;\n      discRxPool_ResourceConfig_prb_Num
+    \                              = 5;\n      discRxPool_ResourceConfig_prb_Start
+    \                            = 3;\n      discRxPool_ResourceConfig_prb_End                               =
+    21;\n      discRxPool_ResourceConfig_offsetIndicator_present               = \"prSmall\";\n
+    \     discRxPool_ResourceConfig_offsetIndicator_choice                = 0;\n      discRxPool_ResourceConfig_subframeBitmap_present
+    \               = \"prBs40\";\n      discRxPool_ResourceConfig_subframeBitmap_choice_bs_buf
+    \         = \"f0ffffffff\";\n      discRxPool_ResourceConfig_subframeBitmap_choice_bs_size
+    \        = 5;\n      discRxPool_ResourceConfig_subframeBitmap_choice_bs_bits_unused
+    \ = 0;\n\n      }\n    );\n\n\n    srb1_parameters :\n    {\n        # timer_poll_retransmit
+    = (ms) [5, 10, 15, 20,... 250, 300, 350, ... 500]\n        timer_poll_retransmit
+    \   = 80;\n\n        # timer_reordering = (ms) [0,5, ... 100, 110, 120, ... ,200]\n
+    \       timer_reordering         = 35;\n\n        # timer_reordering = (ms) [0,5,
+    ... 250, 300, 350, ... ,500]\n        timer_status_prohibit    = 0;\n\n        #
+    poll_pdu = [4, 8, 16, 32 , 64, 128, 256, infinity(>10000)]\n        poll_pdu                 =
+    \ 4;\n\n        # poll_byte = (kB) [25,50,75,100,125,250,375,500,750,1000,1250,1500,2000,3000,infinity(>10000)]\n
+    \       poll_byte                =  99999;\n\n        # max_retx_threshold = [1,
+    2, 3, 4 , 6, 8, 16, 32]\n        max_retx_threshold       =  4;\n    }\n\n    #
+    ------- SCTP definitions\n    SCTP :\n    {\n        # Number of streams to use
+    in input/output\n        SCTP_INSTREAMS  = 2;\n        SCTP_OUTSTREAMS = 2;\n
+    \   };\n\n\n    ////////// MME parameters:\n    mme_ip_address      = ( { ipv4
+    \      = \"@MME_S1C_IP_ADDRESS@\";\n                              ipv6       =
+    \"192:168:30::17\";\n                              port       = 36412 ;\n                              active
+    \    = \"yes\";\n                              preference = \"ipv4\";\n                            }\n
+    \                         );\n\n    enable_measurement_reports = \"no\";\n\n    ///X2\n
+    \   enable_x2 = \"no\";\n    t_reloc_prep      = 1000;      /* unit: millisecond
+    */\n    tx2_reloc_overall = 2000;      /* unit: millisecond */\n    t_dc_prep
+    \        = 1000;      /* unit: millisecond */\n    t_dc_overall      = 2000;      /*
+    unit: millisecond */\n\n    NETWORK_INTERFACES :\n    {\n        ENB_INTERFACE_NAME_FOR_S1_MME
+    \           = \"@S1C_IF_NAME@\";\n        ENB_IPV4_ADDRESS_FOR_S1_MME              =
+    \"@F1_CU_IP_ADDRESS@\";\n        ENB_INTERFACE_NAME_FOR_S1U               = \"@S1U_IF_NAME@\";\n
+    \       ENB_IPV4_ADDRESS_FOR_S1U                 = \"@F1_CU_IP_ADDRESS@\";\n        ENB_PORT_FOR_S1U
+    \                        = 2152; # Spec 2152\n        ENB_IPV4_ADDRESS_FOR_X2C
+    \                = \"@F1_CU_IP_ADDRESS@\";\n        ENB_PORT_FOR_X2C                         =
+    36422; # Spec 36422\n        \n    };\n  }\n);\n\nMACRLCs = (\n\t{\n\tnum_cc =
+    1;\n\tlocal_s_if_name  = \"@F1_IF_NAME@\";\n\tremote_s_address = \"@F1_DU_IP_ADDRESS@\";\n\tlocal_s_address
+    \ = \"@F1_CU_IP_ADDRESS@\";\n\tlocal_s_portc    = 50001;\n\tremote_s_portc   =
+    50000;\n\tlocal_s_portd    = 50011;\n\tremote_s_portd   = 50010;\n\ttr_s_preference
+    = \"nfapi\";\n\ttr_n_preference = \"local_RRC\";\n        }  \n);\n\nTHREAD_STRUCT
+    = (\n  {\n    #three config for level of parallelism \"PARALLEL_SINGLE_THREAD\",
+    \"PARALLEL_RU_L1_SPLIT\", or \"PARALLEL_RU_L1_TRX_SPLIT\"\n    parallel_config
+    \   = \"@THREAD_PARALLEL_CONFIG@\";\n    #two option for worker \"WORKER_DISABLE\"
+    or \"WORKER_ENABLE\"\n    worker_config      = \"WORKER_ENABLE\";\n  }\n);\n\nlog_config
+    =\n    {\n      global_log_level                      =\"info\";\n      global_log_verbosity
+    \                 =\"medium\";\n      hw_log_level                          =\"info\";\n
+    \     hw_log_verbosity                      =\"medium\";\n      phy_log_level
+    \                        =\"info\";\n      phy_log_verbosity                     =\"medium\";\n
+    \     mac_log_level                         =\"info\";\n      mac_log_verbosity
+    \                    =\"high\";\n      rlc_log_level                         =\"info\";\n
+    \     rlc_log_verbosity                     =\"medium\";\n      pdcp_log_level
+    \                       =\"info\";\n      pdcp_log_verbosity                    =\"medium\";\n
+    \     rrc_log_level                         =\"info\";\n      rrc_log_verbosity
+    \                    =\"medium\";\n   };\n"
+  rru.fdd.conf: |
+    RUs =
+    (
+      {
+        local_if_name                 = "@RRU_IF4P5_IF_NAME@";
+        remote_address                = "@RCC_REMOTE_IP_ADDRESS@"
+        local_address                 = "@RRU_LOCAL_IP_ADDRESS@";
+        local_portc                   = 50000;
+        remote_portc                  = 50000;
+        local_portd                   = 50001;
+        remote_portd                  = 50001;
+        local_rf                      = "yes"
+        tr_preference                 = "udp_if4p5";
+        nb_tx                         = 1;
+        nb_rx                         = 1;
+        max_pdschReferenceSignalPower = -27;
+        max_rxgain                    = 115;
+        bands                         = [@UTRA_BAND_ID@];
+      }
+    );
+
+    THREAD_STRUCT =
+    (
+      {
+        #three config for level of parallelism "PARALLEL_SINGLE_THREAD", "PARALLEL_RU_L1_SPLIT", or "PARALLEL_RU_L1_TRX_SPLIT"
+        parallel_config    = "@THREAD_PARALLEL_CONFIG@";
+        #two option for worker "WORKER_DISABLE" or "WORKER_ENABLE"
+        worker_config      = "WORKER_ENABLE";
+      }
+    );
+
+    log_config =
+    {
+      global_log_level      ="error";
+      global_log_verbosity  ="medium";
+      hw_log_level          ="error";
+      hw_log_verbosity      ="medium";
+      phy_log_level         ="error";
+      phy_log_verbosity     ="medium";
+      mac_log_level         ="error";
+      mac_log_verbosity     ="high";
+      rlc_log_level         ="error";
+      rlc_log_verbosity     ="medium";
+      pdcp_log_level        ="error";
+      pdcp_log_verbosity    ="medium";
+      rrc_log_level         ="error";
+      rrc_log_verbosity     ="medium";
+    };
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: oaienb-configmap
+  namespace: open5gs
