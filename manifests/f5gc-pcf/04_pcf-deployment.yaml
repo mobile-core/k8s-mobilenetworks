@@ -20,6 +20,8 @@ spec:
     metadata:
       labels:
         app: f5gc-pcf
+      annotations:
+        cni.projectcalico.org/ipAddrs: "[\"10.244.254.12\"]"
     spec:
       securityContext:
         runAsUser: 0

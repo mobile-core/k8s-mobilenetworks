@@ -31,6 +31,7 @@ spec:
         app: f5gc-smf
       annotations:
         k8s.v1.cni.cncf.io/networks: f5gc-smf-n4
+        cni.projectcalico.org/ipAddrs: "[\"10.244.254.5\"]"
     spec:
       securityContext:
         runAsUser: 0
