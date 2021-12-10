@@ -17,6 +17,7 @@ spec:
         app: oai-ue
       annotations:
         k8s.v1.cni.cncf.io/networks: open5gs-ue-n1n2
+        cni.projectcalico.org/ipAddrs: "[\"10.244.254.31\"]"
     spec:
       securityContext:
         runAsUser: 0
@@ -26,9 +27,9 @@ spec:
         imagePullPolicy: IfNotPresent
         image: oai-lte-ue:develop
         securityContext:    
-         privileged: false
-         capabilities:
-          add: ["NET_ADMIN", "SYS_NICE"]
+          privileged: false
+          capabilities:
+            add: ["NET_ADMIN", "SYS_NICE"]
         resources:
           requests:
             memory: "64Mi"

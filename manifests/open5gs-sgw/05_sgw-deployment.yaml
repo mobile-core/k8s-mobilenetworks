@@ -17,6 +17,7 @@ spec:
         app: open5gs-sgw
       annotations:
         k8s.v1.cni.cncf.io/networks: open5gs-sgw-s11-s5c, open5gs-sgw-s1u-s5u
+        cni.projectcalico.org/ipAddrs: "[\"10.244.254.35\"]"
     spec:
       securityContext:
         runAsUser: 0
