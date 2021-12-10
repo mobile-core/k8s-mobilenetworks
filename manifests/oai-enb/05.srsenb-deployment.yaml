@@ -39,7 +39,7 @@ spec:
           subPath: enb.conf
         ports:
           - containerPort: 38412
-            name: if-s1
+            name: if-s1-mme
             protocol: SCTP
           - containerPort: 2152
             name: if-s1u
