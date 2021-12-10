@@ -17,6 +17,7 @@ spec:
         app: open5gs-hss
       annotations:
         k8s.v1.cni.cncf.io/networks: open5gs-hss-s6a
+        cni.projectcalico.org/ipAddrs: "[\"10.244.254.34\"]"
     spec:
       securityContext:
         runAsUser: 0
