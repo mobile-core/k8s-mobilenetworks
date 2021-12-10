@@ -2,19 +2,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: webui
+    app: open5gs-webui
   name: open5gs-webui
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: webui
+      app: open5gs-webui
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: webui
+        app: open5gs-webui
     spec:
       securityContext:
         runAsUser: 0
