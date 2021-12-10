@@ -27,9 +27,9 @@ spec:
         imagePullPolicy: IfNotPresent
         image: oai-enb:develop
         securityContext:
-            privileged: true
-            capabilities:
-              add: ["SYS_NICE"]
+          privileged: true
+          capabilities:
+            add: ["SYS_NICE"]
         command: 
           - /bin/sleep
           - infinity
@@ -39,7 +39,7 @@ spec:
           subPath: enb.conf
         ports:
           - containerPort: 38412
-            name: if-s1-mme
+            name: if-s1
             protocol: SCTP
           - containerPort: 2152
             name: if-s1u
