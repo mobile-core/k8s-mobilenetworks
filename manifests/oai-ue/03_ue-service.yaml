@@ -7,13 +7,13 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - name: open5gs-ue-n1n2
+  - name: if-s1
     port: 38412
     protocol: SCTP
     targetPort: 38412
-  - name: open5gs-ue-n3
+  - name: if-s1u
     port: 2152
     protocol: UDP
     targetPort: 2152
   selector:
-    app: open5gs-ue
+    app: oai-ue

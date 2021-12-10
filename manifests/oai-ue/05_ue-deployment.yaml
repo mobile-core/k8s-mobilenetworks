@@ -26,7 +26,7 @@ spec:
       - name: oai-ue
         imagePullPolicy: IfNotPresent
         image: oai-lte-ue:develop
-        securityContext:    
+        securityContext:
           privileged: false
           capabilities:
             add: ["NET_ADMIN", "SYS_NICE"]
@@ -49,10 +49,10 @@ spec:
         - name: tun-volume
           mountPath: /opt/oai-lte-ue/etc/ue.conf
         ports:
-          - name: if-n1n2
+          - name: if-s1
             containerPort: 38412
             protocol: SCTP
-          - name: if-n3
+          - name: if-s1u
             containerPort: 2152
             protocol: UDP
       - name: tcpdump
