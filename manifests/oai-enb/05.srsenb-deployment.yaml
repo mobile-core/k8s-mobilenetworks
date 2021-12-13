@@ -27,9 +27,9 @@ spec:
         imagePullPolicy: IfNotPresent
         image: oai-enb:develop
         securityContext:
-            privileged: true
-            capabilities:
-              add: ["SYS_NICE"]
+          privileged: true
+          capabilities:
+            add: ["SYS_NICE"]
         command: 
           - /bin/sleep
           - infinity

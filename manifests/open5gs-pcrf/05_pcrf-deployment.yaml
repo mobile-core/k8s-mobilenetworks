@@ -37,12 +37,6 @@ spec:
               mountPath: /open5gs/config-map/diameter-pcrf.conf
               subPath: "diameter-pcrf.conf"
           ports:
-            - name: if-s5c
-              containerPort: 2123
-              protocol: UDP
-            - name: if-s5u
-              containerPort: 2125
-              protocol: UDP
             - name: if-gx
               containerPort: 3868
               protocol: TCP
